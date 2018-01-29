@@ -300,12 +300,30 @@ void shutdown() {
 
 int main(int argc, char *argv[])
 {
-	renderer = Renderer::makeRenderer(Renderer::BACKEND::GL45);
+	renderer = Renderer::makeRenderer(Renderer::BACKEND::DX12);
 	renderer->initialize(800,600);
-	renderer->setWinTitle("OpenGL");
+	renderer->setWinTitle("DX12");
+
 	renderer->setClearColor(0.0, 0.1, 0.1, 1.0);
 	initialiseTestbench();
 	run();
 	shutdown();
 	return 0;
 };
+
+//
+//
+//int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
+//{
+//	MSG msg = { 0 };
+//	renderer = Renderer::makeRenderer(Renderer::BACKEND::GL45);
+//	renderer->initialize(800, 600);
+//	renderer->setWinTitle("DX12");
+//	renderer->setClearColor(0.0, 0.1, 0.1, 1.0);
+//
+//	initialiseTestbench();
+//	run();
+//	shutdown();
+//
+//	return (int)msg.wParam;
+//};
