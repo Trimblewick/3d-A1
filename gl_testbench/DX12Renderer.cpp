@@ -17,25 +17,6 @@ LRESULT CALLBACK DX12Renderer::EventHandler(HWND hWnd, UINT message, WPARAM wPar
 	switch (message)
 	{
 
-	case WM_SETFOCUS:
-	case WM_KILLFOCUS:
-	case WM_ACTIVATEAPP:
-	case WM_INPUT:
-	case WM_MOUSEMOVE:
-	case WM_LBUTTONDOWN:
-	case WM_LBUTTONUP:
-	case WM_RBUTTONDOWN:
-	case WM_RBUTTONUP:
-	case WM_MBUTTONDOWN:
-	case WM_MBUTTONUP:
-	case WM_MOUSEWHEEL:
-	case WM_XBUTTONDOWN:
-	case WM_XBUTTONUP:
-	case WM_MOUSEHOVER:
-
-	case WM_MOUSELEAVE:
-	case WM_CAPTURECHANGED:
-	case WM_MOVE:
 	case WM_KEYDOWN:
 		if (wParam == VK_ESCAPE) {
 			if (MessageBox(0, L"Are you sure you want to exit?",
@@ -44,12 +25,8 @@ LRESULT CALLBACK DX12Renderer::EventHandler(HWND hWnd, UINT message, WPARAM wPar
 				DestroyWindow(hWnd);
 			}
 		}
-		
 		return 0;
-	case WM_SYSKEYDOWN:
-	case WM_KEYUP:
-		return 0;
-	case WM_SYSKEYUP:
+
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
@@ -137,8 +114,12 @@ int DX12Renderer::shutdown()
 	return 0;
 }
 
-void DX12Renderer::setClearColor(float, float, float, float)
+void DX12Renderer::setClearColor(float r, float g, float b, float a)
 {
+	m_pClearColor[0] = r;
+	m_pClearColor[1] = g;
+	m_pClearColor[2] = b;
+	m_pClearColor[3] = a;
 }
 
 void DX12Renderer::clearBuffer(unsigned int)

@@ -11,6 +11,7 @@ private:
 	static LRESULT CALLBACK EventHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	Window* m_pWindow;
 
+	float m_pClearColor[4];
 
 public:
 	DX12Renderer();

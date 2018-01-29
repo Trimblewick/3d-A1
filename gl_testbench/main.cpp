@@ -87,6 +87,28 @@ void run() {
 	}
 }
 
+void runDX()
+{
+	MSG msg;
+	ZeroMemory(&msg, sizeof(MSG));
+	bool bIsRunning = true;
+	while (bIsRunning)
+	{
+		if (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+		{
+			if (msg.message == WM_QUIT)
+			{
+				bIsRunning = false;
+				break;
+			}
+		}
+		
+		
+		//updateScene();
+		//renderScene();
+	}
+}
+
 /*
  update positions of triangles in the screen changing a translation only
 */
@@ -109,7 +131,7 @@ void updateScene()
 			scene[i]->txBuffer->setData(&trans, sizeof(trans), scene[i]->technique->getMaterial(), TRANSLATION);
 		}
 		// just to make them move...
-		shift+=max(TOTAL_TRIS / 1000.0,TOTAL_TRIS / 100.0);
+		shift+=TOTAL_TRIS / 100.0;
 	}
 	return;
 };
@@ -264,6 +286,11 @@ int initialiseTestbench()
 	return 0;
 }
 
+void initializeTestbenchDX()
+{
+
+}
+
 void shutdown() {
 	// shutdown.
 	// delete dynamic objects
@@ -300,30 +327,16 @@ void shutdown() {
 
 int main(int argc, char *argv[])
 {
+	//renderer = Renderer::makeRenderer(Renderer::BACKEND::GL45);
 	renderer = Renderer::makeRenderer(Renderer::BACKEND::DX12);
 	renderer->initialize(800,600);
 	renderer->setWinTitle("DX12");
-
 	renderer->setClearColor(0.0, 0.1, 0.1, 1.0);
-	initialiseTestbench();
-	run();
+	
+	//initialiseTestbench();
+	//run();
+	runDX();
 	shutdown();
 	return 0;
 };
 
-//
-//
-//int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
-//{
-//	MSG msg = { 0 };
-//	renderer = Renderer::makeRenderer(Renderer::BACKEND::GL45);
-//	renderer->initialize(800, 600);
-//	renderer->setWinTitle("DX12");
-//	renderer->setClearColor(0.0, 0.1, 0.1, 1.0);
-//
-//	initialiseTestbench();
-//	run();
-//	shutdown();
-//
-//	return (int)msg.wParam;
-//};
