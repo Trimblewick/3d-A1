@@ -92,6 +92,43 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 	m_pD3DFactory = new D3DFactory();
 
 
+	m_pCommandQueue = m_pD3DFactory->CreateCQ();
+
+	DXGI_MODE_DESC descMode = {};
+	descMode.Width = width;
+	descMode.Height = height;
+	descMode.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
+
+	DXGI_SAMPLE_DESC descSample = {};
+	descSample.Count = 1;
+
+	DXGI_SWAP_CHAIN_DESC descSwapChain = {};
+	descSwapChain.BufferCount = g_iBackBufferCount;
+	descSwapChain.BufferDesc = descMode;
+	descSwapChain.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+	descSwapChain.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+	descSwapChain.OutputWindow = m_pWindow->GetWindowHandle();
+	descSwapChain.SampleDesc = descSample;
+	descSwapChain.Windowed = false;
+
+	m_pSwapChain = m_pD3DFactory->CreateSwapChain(descSwapChain, m_pCommandQueue);
+
+	m_pDHrenderTargets = m_pD3DFactory->CreateDH(g_iBackBufferCount, D3D12_DESCRIPTOR_HEAP_TYPE_RTV, false);
+	int iDHIncrementSize = m_pD3DFactory->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	D3D12_CPU_DESCRIPTOR_HANDLE handleDH = m_pDHrenderTargets->GetCPUDescriptorHandleForHeapStart();
+
+	for (int i = 0; i < g_iBackBufferCount; ++i)
+	{
+		m_pFenceValues[i] = 0;
+		m_ppFenceFrame[i] = m_pD3DFactory->CreateFence();
+		m_pSwapChain->GetBuffer(i, IID_PPV_ARGS(&m_ppRenderTargets[i]));
+		m_pD3DFactory->GetDevice()->CreateRenderTargetView(m_ppRenderTargets[i], nullptr, handleDH);
+		handleDH.ptr += iDHIncrementSize;
+		
+		m_ppCommandAllocators[i] = m_pD3DFactory->CreateCA();
+		m_ppCommandLists[i] = m_pD3DFactory->CreateCL(m_ppCommandAllocators[i]);
+	}
+
 	return 0;
 }
 
@@ -108,6 +145,10 @@ void DX12Renderer::setWinTitle(const char * title)
 
 void DX12Renderer::present()
 {
+
+
+	m_pSwapChain->Present(0, 0);
+
 }
 
 int DX12Renderer::shutdown()
@@ -123,12 +164,20 @@ void DX12Renderer::setClearColor(float r, float g, float b, float a)
 	m_pClearColor[3] = a;
 }
 
-void DX12Renderer::clearBuffer(unsigned int)
+void DX12Renderer::clearBuffer(unsigned int flag = -1)
 {
+	int iFrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
+
+	int iDHIncrementSize = m_pD3DFactory->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	D3D12_CPU_DESCRIPTOR_HANDLE handleDH = m_pDHrenderTargets->GetCPUDescriptorHandleForHeapStart();
+	handleDH.ptr += iDHIncrementSize * iFrameIndex;
+
+	m_ppCommandLists[iFrameIndex]->ClearRenderTargetView(handleDH, m_pClearColor, NULL, nullptr);
 }
 
 void DX12Renderer::setRenderState(RenderState * ps)
 {
+
 }
 
 void DX12Renderer::submit(Mesh * mesh)

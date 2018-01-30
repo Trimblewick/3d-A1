@@ -4,15 +4,28 @@
 #include "D3DFactory.h"
 #include "Window.h"
 
+const unsigned int g_iBackBufferCount = 3;
 
 class DX12Renderer : public Renderer
 {
 private:
 	static LRESULT CALLBACK EventHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
-	Window* m_pWindow;
-	D3DFactory* m_pD3DFactory;
+	Window*								m_pWindow;
+	D3DFactory*							m_pD3DFactory;
 
-	float m_pClearColor[4];
+	
+	ID3D12CommandQueue*					m_pCommandQueue;
+	IDXGISwapChain3*					m_pSwapChain;
+	float								m_pClearColor[4];
+	
+	ID3D12DescriptorHeap*				m_pDHrenderTargets;
+	ID3D12Resource*						m_ppRenderTargets[g_iBackBufferCount];
+	
+	unsigned long long					m_pFenceValues[g_iBackBufferCount];
+	ID3D12Fence*						m_ppFenceFrame[g_iBackBufferCount];
+
+	ID3D12CommandAllocator*				m_ppCommandAllocators[g_iBackBufferCount];
+	ID3D12GraphicsCommandList*			m_ppCommandLists[g_iBackBufferCount];
 
 public:
 	DX12Renderer();
