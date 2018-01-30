@@ -3,6 +3,7 @@
 
 DX12Renderer::DX12Renderer()
 {
+
 }
 
 DX12Renderer::~DX12Renderer()
@@ -88,7 +89,7 @@ Technique * DX12Renderer::makeTechnique(Material *, RenderState *)
 int DX12Renderer::initialize(unsigned int width, unsigned int height)
 {
 	m_pWindow = new Window(width, height, EventHandler);
-
+	m_pD3DFactory = new D3DFactory();
 
 
 	return 0;

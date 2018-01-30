@@ -10,6 +10,11 @@
 #include "Texture2D.h"
 #include <math.h>
 
+
+#pragma comment(lib, "d3d12.lib")
+#pragma comment(lib, "dxgi.lib")
+#pragma comment(lib, "d3dcompiler.lib")
+
 using namespace std;
 Renderer* renderer;
 
@@ -288,7 +293,8 @@ int initialiseTestbench()
 
 void initializeTestbenchDX()
 {
-
+	
+	
 }
 
 void shutdown() {

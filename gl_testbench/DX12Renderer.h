@@ -1,8 +1,8 @@
 #pragma once
+
 #include "Renderer.h"
 #include "D3DFactory.h"
 #include "Window.h"
-
 
 
 class DX12Renderer : public Renderer
@@ -10,6 +10,7 @@ class DX12Renderer : public Renderer
 private:
 	static LRESULT CALLBACK EventHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 	Window* m_pWindow;
+	D3DFactory* m_pD3DFactory;
 
 	float m_pClearColor[4];
 
