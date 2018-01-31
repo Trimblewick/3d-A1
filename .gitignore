@@ -9,3 +9,4 @@
 Debug*
 *.opendb
 /uml.png
+*.tlog

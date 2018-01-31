@@ -109,7 +109,7 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 	descSwapChain.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	descSwapChain.OutputWindow = m_pWindow->GetWindowHandle();
 	descSwapChain.SampleDesc = descSample;
-	descSwapChain.Windowed = false;
+	descSwapChain.Windowed = true;
 
 	m_pSwapChain = m_pD3DFactory->CreateSwapChain(descSwapChain, m_pCommandQueue);
 
