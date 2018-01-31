@@ -16,7 +16,10 @@ Window::Window(unsigned int iWidth, unsigned int iHeight, WNDPROC EventHandler)
 	m_windowInfo.lpszClassName = L"Window";
 	m_windowInfo.hIcon = LoadIcon(m_windowInstance, MAKEINTRESOURCE(101));
 
-	RegisterClassEx(&m_windowInfo);
+	if (RegisterClassEx(&m_windowInfo))
+	{
+		int stoppper = 0;
+	}
 
 	m_windowRect = { 0, 0, (long)iWidth, (long)iHeight };
 	AdjustWindowRect(&m_windowRect, WS_OVERLAPPEDWINDOW, FALSE);
@@ -40,6 +43,7 @@ Window::Window(unsigned int iWidth, unsigned int iHeight, WNDPROC EventHandler)
 
 Window::~Window()
 {
+	//DestroyWindow(m_windowHandle);
 }
 
 int Window::GetWidth()

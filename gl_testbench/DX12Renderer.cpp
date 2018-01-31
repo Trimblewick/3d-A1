@@ -14,7 +14,7 @@ DX12Renderer::~DX12Renderer()
 LRESULT CALLBACK DX12Renderer::EventHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	//If one case is hit the code will execute everything down until a break;
-
+	int stopper = 0;
 	switch (message)
 	{
 
@@ -28,6 +28,9 @@ LRESULT CALLBACK DX12Renderer::EventHandler(HWND hWnd, UINT message, WPARAM wPar
 		}
 		return 0;
 
+	case WM_KEYUP:
+		 stopper = 1;
+		 break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
 		break;
@@ -225,6 +228,16 @@ int DX12Renderer::shutdown()
 	SAFE_RELEASE(m_pSwapChain);
 	SAFE_RELEASE(m_pCommandQueue);
 
+	if (m_pD3DFactory)
+	{
+		delete m_pD3DFactory;
+		m_pD3DFactory = nullptr;
+	}
+	if (m_pWindow)
+	{
+		delete m_pWindow;
+		m_pWindow = nullptr;
+	}
 	return 0;
 }
 
