@@ -1,0 +1,11 @@
+*.obj
+*.idb
+*.pdb
+*.exe
+*.ilk
+*.db
+*.*~
+\.*
+Debug*
+*.opendb
+/uml.png
