@@ -127,8 +127,7 @@ IDXGISwapChain3 * D3DFactory::CreateSwapChain(DXGI_SWAP_CHAIN_DESC desc, ID3D12C
 	IDXGISwapChain*		pTemp = nullptr;
 	IDXGISwapChain3*	pSwapChain = nullptr;
 
-	HRESULT hr;
-	hr = m_pDXGIFactory->CreateSwapChain(pCQ, &desc, &pTemp);
+	assert(SUCCEEDED(m_pDXGIFactory->CreateSwapChain(pCQ, &desc, &pTemp)));
 
 	pSwapChain = static_cast<IDXGISwapChain3*>(pTemp);
 
@@ -151,5 +150,14 @@ ID3D12DescriptorHeap * D3DFactory::CreateDH(int numDescriptors, D3D12_DESCRIPTOR
 	return pDH;
 }
 
+ID3DBlob * D3DFactory::CompileShader(LPCWSTR filePath, LPCSTR entrypoint, LPCSTR shadermodel)
+{
+	ID3DBlob* shaderBlob;
+
+	DxAssert(D3DCompileFromFile(filePath, nullptr, nullptr, entrypoint, shadermodel,
+		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 0, &shaderBlob, nullptr), S_OK);
+
+	return shaderBlob;
+}
 
 

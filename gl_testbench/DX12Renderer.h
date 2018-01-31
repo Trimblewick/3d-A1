@@ -5,6 +5,7 @@
 #include "Window.h"
 
 const unsigned int g_iBackBufferCount = 3;
+#define SAFE_RELEASE(p)      { if (p) { (p)->Release(); (p)=NULL; } }
 
 class DX12Renderer : public Renderer
 {
@@ -23,15 +24,18 @@ private:
 	
 	unsigned long long					m_pFenceValues[g_iBackBufferCount];
 	ID3D12Fence*						m_ppFenceFrame[g_iBackBufferCount];
+	HANDLE								m_handleFence;
 
 	ID3D12CommandAllocator*				m_ppCommandAllocators[g_iBackBufferCount];
 	ID3D12GraphicsCommandList*			m_ppCommandLists[g_iBackBufferCount];
 
+	ID3D12RootSignature*				m_pRS;
+	ID3D12PipelineState*				m_pPSO;
+
+
 public:
 	DX12Renderer();
 	~DX12Renderer();
-
-
 
 private:
 

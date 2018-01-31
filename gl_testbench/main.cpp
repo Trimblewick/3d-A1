@@ -110,7 +110,7 @@ void runDX()
 		
 		
 		//updateScene();
-		//renderScene();
+		renderScene();
 	}
 }
 
@@ -145,10 +145,10 @@ void updateScene()
 void renderScene()
 {
 	renderer->clearBuffer(CLEAR_BUFFER_FLAGS::COLOR | CLEAR_BUFFER_FLAGS::DEPTH);
-	for (auto m : scene)
+	/*for (auto m : scene)
 	{
 		renderer->submit(m);
-	}
+	}*/
 	renderer->frame();
 	renderer->present();
 	updateDelta();
@@ -293,7 +293,28 @@ int initialiseTestbench()
 
 void initializeTestbenchDX()
 {
-	
+	float degToRad = M_PI / 180.0;
+	float scale = (float)TOTAL_PLACES / 359.9;
+	for (int a = 0; a < TOTAL_PLACES; a++)
+	{
+		xt[a] = 0.8f * cosf(degToRad * ((float)a / scale) * 3.0);
+		yt[a] = 0.8f * sinf(degToRad * ((float)a / scale) * 2.0);
+	};
+
+	// triangle geometry:
+	float4 triPos[3] = { { 0.0f,  0.05, 0.0f, 1.0f },{ 0.05, -0.05, 0.0f, 1.0f },{ -0.05, -0.05, 0.0f, 1.0f } };
+	float4 triNor[3] = { { 0.0f,  0.0f, 1.0f, 0.0f },{ 0.0f, 0.0f, 1.0f, 0.0f },{ 0.0f, 0.0f, 1.0f, 0.0f } };
+	float2 triUV[3] = { { 0.5f,  -0.99f },{ 1.49f, 1.1f },{ -0.51, 1.1f } };
+
+	// load Materials.
+	std::string shaderPath = renderer->getShaderPath();
+	std::string shaderExtension = renderer->getShaderExtension();
+	float diffuse[4][4] = {
+		0.0,0.0,1.0,1.0,
+		0.0,1.0,0.0,1.0,
+		1.0,1.0,1.0,1.0,
+		1.0,0.0,0.0,1.0
+	};
 	
 }
 
