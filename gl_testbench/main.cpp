@@ -154,7 +154,7 @@ void renderScene()
 	{
 		renderer->submit(m);
 	}*/
-	renderer->frame();
+	//renderer->frame();
 	renderer->present();
 	updateDelta();
 	sprintf(gTitleBuff, "OpenGL - %3.0lf", gLastDelta);

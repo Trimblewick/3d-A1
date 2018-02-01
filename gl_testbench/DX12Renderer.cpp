@@ -92,6 +92,7 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 	m_pD3DFactory = new D3DFactory();
 
 	m_pCommandQueue = m_pD3DFactory->CreateCQ();
+	m_handleFence = CreateEvent(NULL, NULL, NULL, NULL);
 
 	DXGI_MODE_DESC descMode = {};
 	descMode.Width = width;
@@ -263,6 +264,7 @@ void DX12Renderer::clearBuffer(unsigned int flag = -1)
 	D3D12_CPU_DESCRIPTOR_HANDLE handleDH = m_pDHrenderTargets->GetCPUDescriptorHandleForHeapStart();
 	handleDH.ptr += iIncrementSizeRTV * iFrameIndex;
 
+	m_ppCommandLists[iFrameIndex]->OMSetRenderTargets(1, &handleDH, NULL, nullptr);
 	m_ppCommandLists[iFrameIndex]->ClearRenderTargetView(handleDH, m_pClearColor, NULL, nullptr);
 }
 
