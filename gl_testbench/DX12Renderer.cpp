@@ -28,12 +28,9 @@ LRESULT CALLBACK DX12Renderer::EventHandler(HWND hWnd, UINT message, WPARAM wPar
 		}
 		return 0;
 
-	case WM_KEYUP:
-		 stopper = 1;
-		 break;
 	case WM_DESTROY:
 		PostQuitMessage(0);
-		break;
+		return 0;
 	}
 
 	return DefWindowProc(hWnd, message, wParam, lParam);
@@ -124,11 +121,13 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 		m_pFenceValues[i] = 0;
 		m_ppFenceFrame[i] = m_pD3DFactory->CreateFence();
 		m_pSwapChain->GetBuffer(i, IID_PPV_ARGS(&m_ppRenderTargets[i]));
+
 		m_pD3DFactory->GetDevice()->CreateRenderTargetView(m_ppRenderTargets[i], nullptr, handleDH);
 		handleDH.ptr += iDHIncrementSize;
 		
 		m_ppCommandAllocators[i] = m_pD3DFactory->CreateCA();
 		m_ppCommandLists[i] = m_pD3DFactory->CreateCL(m_ppCommandAllocators[i]);
+		m_ppCommandLists[i]->Close();
 	}
 
 
@@ -147,8 +146,8 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 	D3D12_ROOT_SIGNATURE_DESC descRS = {};
 	//descRS.NumParameters = 0;// rootParameters.size();
 	//descRS.pParameters = 0;// rootParameters.data();
-	descRS.NumStaticSamplers = 1;
-	descRS.pStaticSamplers = &CD3DX12_STATIC_SAMPLER_DESC(0);
+	//descRS.NumStaticSamplers = 1;
+	//descRS.pStaticSamplers = &CD3DX12_STATIC_SAMPLER_DESC(0);
 
 	m_pRS = m_pD3DFactory->CreateRS(&descRS);
 
@@ -166,6 +165,7 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 	descPSO.SampleDesc = descSample;
 	descPSO.SampleMask = 0xffffffff;
 	descPSO.pRootSignature = m_pRS;
+	
 	
 	m_pPSO = m_pD3DFactory->CreatePSO(&descPSO);
 
@@ -187,6 +187,7 @@ void DX12Renderer::present()
 {
 	int iFrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 	m_ppCommandLists[iFrameIndex]->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_ppRenderTargets[iFrameIndex], D3D12_RESOURCE_STATE_RENDER_TARGET, D3D12_RESOURCE_STATE_PRESENT));
+	m_ppCommandLists[iFrameIndex]->Close();
 
 	ID3D12CommandList* ppCLs[] = { m_ppCommandLists[iFrameIndex] };
 	m_pCommandQueue->ExecuteCommandLists(1, ppCLs);
@@ -253,9 +254,9 @@ void DX12Renderer::clearBuffer(unsigned int flag = -1)
 {
 	int iFrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 
-	m_ppCommandAllocators[iFrameIndex]->Reset();
-	m_ppCommandLists[iFrameIndex]->Reset(m_ppCommandAllocators[iFrameIndex], m_pPSO);
-
+	HRESULT hr = m_ppCommandAllocators[iFrameIndex]->Reset();
+	hr = m_ppCommandLists[iFrameIndex]->Reset(m_ppCommandAllocators[iFrameIndex], nullptr);
+	
 	m_ppCommandLists[iFrameIndex]->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(m_ppRenderTargets[iFrameIndex], D3D12_RESOURCE_STATE_PRESENT, D3D12_RESOURCE_STATE_RENDER_TARGET));
 
 	int iIncrementSizeRTV = m_pD3DFactory->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
@@ -276,19 +277,17 @@ void DX12Renderer::submit(Mesh * mesh)
 
 void DX12Renderer::frame()
 {
-	//Reset
 	int iFrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 	
-	//Set DH
-	ID3D12DescriptorHeap* ppDescriptorHeaps[] = { m_pDHrenderTargets };
-	m_ppCommandLists[iFrameIndex]->SetDescriptorHeaps(1, ppDescriptorHeaps);
+	//ID3D12DescriptorHeap* ppDescriptorHeaps[] = { m_pDHrenderTargets };
+	//m_ppCommandLists[iFrameIndex]->SetDescriptorHeaps(1, ppDescriptorHeaps);
 	int iIncrementSizeRTV = m_pD3DFactory->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	D3D12_CPU_DESCRIPTOR_HANDLE handleDH = m_pDHrenderTargets->GetCPUDescriptorHandleForHeapStart();
 	handleDH.ptr += iIncrementSizeRTV * iFrameIndex;
 
-	m_ppCommandLists[iFrameIndex]->OMSetRenderTargets(1, &handleDH, NULL, nullptr);
-	m_ppCommandLists[iFrameIndex]->SetComputeRootSignature(m_pRS);
-	m_ppCommandLists[iFrameIndex]->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	//m_ppCommandLists[iFrameIndex]->OMSetRenderTargets(1, &handleDH, NULL, nullptr);
+	//m_ppCommandLists[iFrameIndex]->SetGraphicsRootSignature(m_pRS);
+	//m_ppCommandLists[iFrameIndex]->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
-	m_ppCommandLists[iFrameIndex]->DrawInstanced(4, 1, 0, 0);
+	//m_ppCommandLists[iFrameIndex]->DrawInstanced(4, 1, 0, 0);
 }

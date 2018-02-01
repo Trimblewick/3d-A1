@@ -104,7 +104,12 @@ void runDX()
 			if (msg.message == WM_QUIT)
 			{
 				bIsRunning = false;
-				break;
+				
+			}
+			else
+			{
+				TranslateMessage(&msg);
+				DispatchMessage(&msg);
 			}
 		}
 		
