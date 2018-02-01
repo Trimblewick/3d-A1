@@ -101,6 +101,7 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 
 	DXGI_SAMPLE_DESC descSample = {};
 	descSample.Count = 1;
+	
 
 	DXGI_SWAP_CHAIN_DESC descSwapChain = {};
 	descSwapChain.BufferCount = g_iBackBufferCount;
@@ -137,14 +138,10 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 	ID3DBlob* pVSblob = m_pD3DFactory->CompileShader(L"VertexShader.hlsl", "main", "vs_5_1");
 	ID3DBlob* pPSblob = m_pD3DFactory->CompileShader(L"PixelShader.hlsl", "main", "ps_5_1");
 
-	std::vector<D3D12_ROOT_PARAMETER> rootParameters;
-
-	D3D12_ROOT_PARAMETER tempRP;
-	tempRP.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-	
-
-
-	D3D12_ROOT_SIGNATURE_DESC descRS = {};
+	D3D12_ROOT_SIGNATURE_DESC descRS = CD3DX12_ROOT_SIGNATURE_DESC(D3D12_DEFAULT);// {};
+	descRS.Flags = D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
+		D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
+		D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
 	//descRS.NumParameters = 0;// rootParameters.size();
 	//descRS.pParameters = 0;// rootParameters.data();
 	//descRS.NumStaticSamplers = 1;
@@ -155,7 +152,7 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC descPSO = {};
 	descPSO.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	descPSO.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	//descPSO.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	descPSO.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 	descPSO.NumRenderTargets = 1;
 	descPSO.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
@@ -170,6 +167,18 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 	
 	m_pPSO = m_pD3DFactory->CreatePSO(&descPSO);
 
+	m_viewport.TopLeftX = 0;
+	m_viewport.TopLeftY = 0;
+	m_viewport.Width = width;
+	m_viewport.Height = height;
+	m_viewport.MinDepth = 0.0f;
+	m_viewport.MaxDepth = 1.0f;
+
+	m_rectScissor.left = (long)0;
+	m_rectScissor.top = (long)0;
+	m_rectScissor.right = (long)width;
+	m_rectScissor.bottom = (long)height;
+
 	return 0;
 }
 
@@ -179,7 +188,6 @@ void DX12Renderer::setWinTitle(const char * title)
 	wchar_t * buf = new wchar_t[wn + 1]();
 	mbsrtowcs(buf, &title, wn + 1, NULL);
 	
-
 	m_pWindow->SetTitle(buf);
 	delete[] buf;
 }
@@ -194,7 +202,10 @@ void DX12Renderer::present()
 	m_pCommandQueue->ExecuteCommandLists(1, ppCLs);
 	m_pCommandQueue->Signal(m_ppFenceFrame[iFrameIndex], m_pFenceValues[iFrameIndex]);
 
+
+
 	m_pSwapChain->Present(0, 0);
+
 
 	
 	iFrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
@@ -264,8 +275,9 @@ void DX12Renderer::clearBuffer(unsigned int flag = -1)
 	D3D12_CPU_DESCRIPTOR_HANDLE handleDH = m_pDHrenderTargets->GetCPUDescriptorHandleForHeapStart();
 	handleDH.ptr += iIncrementSizeRTV * iFrameIndex;
 
-	m_ppCommandLists[iFrameIndex]->OMSetRenderTargets(1, &handleDH, NULL, nullptr);
+	
 	m_ppCommandLists[iFrameIndex]->ClearRenderTargetView(handleDH, m_pClearColor, NULL, nullptr);
+	m_ppCommandLists[iFrameIndex]->OMSetRenderTargets(1, &handleDH, NULL, nullptr);
 }
 
 void DX12Renderer::setRenderState(RenderState * ps)
@@ -281,15 +293,18 @@ void DX12Renderer::frame()
 {
 	int iFrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 	
-	//ID3D12DescriptorHeap* ppDescriptorHeaps[] = { m_pDHrenderTargets };
-	//m_ppCommandLists[iFrameIndex]->SetDescriptorHeaps(1, ppDescriptorHeaps);
-	int iIncrementSizeRTV = m_pD3DFactory->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
-	D3D12_CPU_DESCRIPTOR_HANDLE handleDH = m_pDHrenderTargets->GetCPUDescriptorHandleForHeapStart();
-	handleDH.ptr += iIncrementSizeRTV * iFrameIndex;
+	//ID3D12DescriptorHeap* ppDescriptorHeaps[] = { };
+	//m_ppCommandLists[iFrameIndex]->SetDescriptorHeaps(0, nullptr);
+	//int iIncrementSizeRTV = m_pD3DFactory->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	//D3D12_CPU_DESCRIPTOR_HANDLE handleDH = m_pDHrenderTargets->GetCPUDescriptorHandleForHeapStart();
+	//handleDH.ptr += iIncrementSizeRTV * iFrameIndex;
 
-	//m_ppCommandLists[iFrameIndex]->OMSetRenderTargets(1, &handleDH, NULL, nullptr);
-	//m_ppCommandLists[iFrameIndex]->SetGraphicsRootSignature(m_pRS);
-	//m_ppCommandLists[iFrameIndex]->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	m_ppCommandLists[iFrameIndex]->RSSetViewports(1, &m_viewport);
+	m_ppCommandLists[iFrameIndex]->RSSetScissorRects(1, &m_rectScissor);
 
-	//m_ppCommandLists[iFrameIndex]->DrawInstanced(4, 1, 0, 0);
+	m_ppCommandLists[iFrameIndex]->SetPipelineState(m_pPSO);
+	m_ppCommandLists[iFrameIndex]->SetGraphicsRootSignature(m_pRS);
+	m_ppCommandLists[iFrameIndex]->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+
+	m_ppCommandLists[iFrameIndex]->DrawInstanced(3, 1, 0, 0);
 }
