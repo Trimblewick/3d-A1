@@ -135,6 +135,7 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 
 
 	//Create resources
+	//VULLE: compile behöver göras i material också. Hur fixar vi det?
 	ID3DBlob* pVSblob = m_pD3DFactory->CompileShader(L"VertexShader.hlsl", "main", "vs_5_1");
 	ID3DBlob* pPSblob = m_pD3DFactory->CompileShader(L"PixelShader.hlsl", "main", "ps_5_1");
 
@@ -159,7 +160,6 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 	descPSO.VS = { pVSblob->GetBufferPointer(), pVSblob->GetBufferSize() };
 	descPSO.PS = { pPSblob->GetBufferPointer(), pPSblob->GetBufferSize() };
 	descPSO.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	descPSO.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
 	descPSO.SampleDesc = descSample;
 	descPSO.SampleMask = 0xffffffff;
 	descPSO.pRootSignature = m_pRS;
