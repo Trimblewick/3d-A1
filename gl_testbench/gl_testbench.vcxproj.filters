@@ -17,7 +17,7 @@
       <UniqueIdentifier>{7fda8481-d7dd-4a62-a90b-96d3f03f423b}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source Files\DX12">
-      <UniqueIdentifier>{5aeae221-5731-4527-8429-5965c3c0fad0}</UniqueIdentifier>
+      <UniqueIdentifier>{6b7ef452-ad15-47a1-92fd-3d8bc14fc17b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -90,13 +90,13 @@
     <ClCompile Include="OpenGL\VertexBufferGL.cpp">
       <Filter>Source Files\OpenGL</Filter>
     </ClCompile>
-    <ClCompile Include="D3DFactory.cpp">
+    <ClCompile Include="DX12\D3DFactory.cpp">
       <Filter>Source Files\DX12</Filter>
     </ClCompile>
-    <ClCompile Include="Window.cpp">
+    <ClCompile Include="DX12\DX12Renderer.cpp">
       <Filter>Source Files\DX12</Filter>
     </ClCompile>
-    <ClCompile Include="DX12Renderer.cpp">
+    <ClCompile Include="DX12\Window.cpp">
       <Filter>Source Files\DX12</Filter>
     </ClCompile>
   </ItemGroup>
@@ -173,16 +173,19 @@
     <ClInclude Include="OpenGL\VertexBufferGL.h">
       <Filter>Source Files\OpenGL</Filter>
     </ClInclude>
-    <ClInclude Include="D3DFactory.h">
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DX12\DX12Renderer.h">
       <Filter>Source Files\DX12</Filter>
     </ClInclude>
-    <ClInclude Include="d3dx12.h">
+    <ClInclude Include="DX12\D3DFactory.h">
       <Filter>Source Files\DX12</Filter>
     </ClInclude>
-    <ClInclude Include="Window.h">
+    <ClInclude Include="DX12\d3dx12.h">
       <Filter>Source Files\DX12</Filter>
     </ClInclude>
-    <ClInclude Include="DX12Renderer.h">
+    <ClInclude Include="DX12\Window.h">
       <Filter>Source Files\DX12</Filter>
     </ClInclude>
   </ItemGroup>
@@ -193,13 +196,5 @@
     <None Include="..\assets\GL45\VertexShader.glsl">
       <Filter>Resource Files</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <FxCompile Include="VertexShader.hlsl">
-      <Filter>Source Files\DX12</Filter>
-    </FxCompile>
-    <FxCompile Include="PixelShader.hlsl">
-      <Filter>Source Files\DX12</Filter>
-    </FxCompile>
   </ItemGroup>
 </Project>

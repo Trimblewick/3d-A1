@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Renderer.h"
+#include "../Renderer.h"
 #include "D3DFactory.h"
 #include "Window.h"
 

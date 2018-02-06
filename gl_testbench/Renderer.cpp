@@ -1,6 +1,6 @@
 #include "OpenGL/OpenGLRenderer.h"
 #include "Renderer.h"
-#include "DX12Renderer.h"
+#include "DX12/DX12Renderer.h"
 
 Renderer* Renderer::makeRenderer(BACKEND option)
 {
