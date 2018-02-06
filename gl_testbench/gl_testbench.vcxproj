@@ -149,9 +149,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ConstantBuffer.cpp" />
+    <ClCompile Include="ConstantBufferDX12.cpp" />
     <ClCompile Include="DX12\D3DFactory.cpp" />
     <ClCompile Include="DX12\DX12Renderer.cpp" />
     <ClCompile Include="DX12\Window.cpp" />
+    <ClCompile Include="MaterialDX12.cpp" />
+    <ClCompile Include="MeshDX12.cpp" />
     <ClCompile Include="OpenGL\ConstantBufferGL.cpp" />
     <ClCompile Include="OpenGL\MaterialGL.cpp" />
     <ClCompile Include="OpenGL\MeshGL.cpp" />
@@ -162,8 +165,13 @@
     <ClCompile Include="OpenGL\Texture2DGL.cpp" />
     <ClCompile Include="OpenGL\TransformGL.cpp" />
     <ClCompile Include="OpenGL\VertexBufferGL.cpp" />
+    <ClCompile Include="RenderStateDX12.cpp" />
+    <ClCompile Include="ResourceBindingDX12.cpp" />
     <ClCompile Include="Sampler2D.cpp" />
+    <ClCompile Include="Sampler2DDX12.cpp" />
     <ClCompile Include="Scene.cpp" />
+    <ClCompile Include="Texture2DDX12.cpp" />
+    <ClCompile Include="TransformDX12.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="main.cpp" />
@@ -174,14 +182,18 @@
     <ClCompile Include="Technique.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="Transform.cpp" />
+    <ClCompile Include="VertexBufferDX12.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\stb_image.h" />
     <ClInclude Include="ConstantBuffer.h" />
+    <ClInclude Include="ConstantBufferDX12.h" />
     <ClInclude Include="DX12\D3DFactory.h" />
     <ClInclude Include="DX12\d3dx12.h" />
     <ClInclude Include="DX12\DX12Renderer.h" />
     <ClInclude Include="DX12\Window.h" />
+    <ClInclude Include="MaterialDX12.h" />
+    <ClInclude Include="MeshDX12.h" />
     <ClInclude Include="OpenGL\ConstantBufferGL.h" />
     <ClInclude Include="OpenGL\MaterialGL.h" />
     <ClInclude Include="OpenGL\MeshGL.h" />
@@ -192,9 +204,14 @@
     <ClInclude Include="OpenGL\Texture2DGL.h" />
     <ClInclude Include="OpenGL\TransformGL.h" />
     <ClInclude Include="OpenGL\VertexBufferGL.h" />
+    <ClInclude Include="RenderStateDX12.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="ResourceBindingDX12.h" />
     <ClInclude Include="Sampler2D.h" />
+    <ClInclude Include="Sampler2DDX12.h" />
     <ClInclude Include="Scene.h" />
+    <ClInclude Include="Texture2DDX12.h" />
+    <ClInclude Include="TransformDX12.h" />
     <ClInclude Include="VertexBuffer.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="IA.h" />
@@ -205,6 +222,7 @@
     <ClInclude Include="Technique.h" />
     <ClInclude Include="Texture2D.h" />
     <ClInclude Include="Transform.h" />
+    <ClInclude Include="VertexBufferDX12.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\assets\GL45\FragmentShader.glsl" />
