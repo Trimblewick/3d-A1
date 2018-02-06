@@ -1,5 +1,12 @@
 #include "DX12Renderer.h"
-
+#include "MaterialDX12.h"
+#include "MeshDX12.h"
+#include "../Technique.h"
+#include "ResourceBindingDX12.h"
+#include "RenderStateDX12.h"
+#include "VertexBufferDX12.h"
+#include "ConstantBufferDX12.h"
+#include "Texture2DDX12.h"
 
 DX12Renderer::DX12Renderer()
 {
@@ -14,7 +21,6 @@ DX12Renderer::~DX12Renderer()
 LRESULT CALLBACK DX12Renderer::EventHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	//If one case is hit the code will execute everything down until a break;
-	int stopper = 0;
 	switch (message)
 	{
 
@@ -43,7 +49,7 @@ Material * DX12Renderer::makeMaterial(const std::string & name)
 
 Mesh * DX12Renderer::makeMesh()
 {
-	return nullptr;
+	return new MeshDX12();
 }
 
 VertexBuffer * DX12Renderer::makeVertexBuffer(size_t size, VertexBuffer::DATA_USAGE usage)

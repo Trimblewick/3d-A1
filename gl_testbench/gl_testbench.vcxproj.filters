@@ -120,10 +120,10 @@
     <ClCompile Include="TransformDX12.cpp">
       <Filter>Source Files\DX12</Filter>
     </ClCompile>
-    <ClCompile Include="MeshDX12.cpp">
+    <ClCompile Include="ConstantBufferDX12.cpp">
       <Filter>Source Files\DX12</Filter>
     </ClCompile>
-    <ClCompile Include="ConstantBufferDX12.cpp">
+    <ClCompile Include="MeshDX12.cpp">
       <Filter>Source Files\DX12</Filter>
     </ClCompile>
   </ItemGroup>
@@ -215,31 +215,31 @@
     <ClInclude Include="DX12\Window.h">
       <Filter>Source Files\DX12</Filter>
     </ClInclude>
-    <ClInclude Include="ConstantBufferDX12.h">
+    <ClInclude Include="DX12\ConstantBufferDX12.h">
       <Filter>Source Files\DX12</Filter>
     </ClInclude>
-    <ClInclude Include="MaterialDX12.h">
+    <ClInclude Include="DX12\MaterialDX12.h">
       <Filter>Source Files\DX12</Filter>
     </ClInclude>
-    <ClInclude Include="MeshDX12.h">
+    <ClInclude Include="DX12\MeshDX12.h">
       <Filter>Source Files\DX12</Filter>
     </ClInclude>
-    <ClInclude Include="RenderStateDX12.h">
+    <ClInclude Include="DX12\RenderStateDX12.h">
       <Filter>Source Files\DX12</Filter>
     </ClInclude>
-    <ClInclude Include="ResourceBindingDX12.h">
+    <ClInclude Include="DX12\ResourceBindingDX12.h">
       <Filter>Source Files\DX12</Filter>
     </ClInclude>
-    <ClInclude Include="Sampler2DDX12.h">
+    <ClInclude Include="DX12\Sampler2DDX12.h">
       <Filter>Source Files\DX12</Filter>
     </ClInclude>
-    <ClInclude Include="Texture2DDX12.h">
+    <ClInclude Include="DX12\Texture2DDX12.h">
       <Filter>Source Files\DX12</Filter>
     </ClInclude>
-    <ClInclude Include="TransformDX12.h">
+    <ClInclude Include="DX12\TransformDX12.h">
       <Filter>Source Files\DX12</Filter>
     </ClInclude>
-    <ClInclude Include="VertexBufferDX12.h">
+    <ClInclude Include="DX12\VertexBufferDX12.h">
       <Filter>Source Files\DX12</Filter>
     </ClInclude>
   </ItemGroup>
