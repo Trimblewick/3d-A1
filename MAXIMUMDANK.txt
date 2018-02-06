@@ -1,0 +1,11 @@
+ClearBuffer:
+1)Resetta command allocator, commandlist
+2)transition rendertarget from present to rendertarget
+3)choose the correct rendertarget in heap, clear that rendertarget
+Frame:
+set pipelinestates, rootsignatures, and draw
+Present:
+1)transition rendertarget from rendertarget to present
+2)close lists and queue them
+3)precent next frame(rendertargetet man jobbat på denna framen, den man trasitionade i Present 1) )
+4)kolla om nästa steg är klart, annars itereta till nästa frame.

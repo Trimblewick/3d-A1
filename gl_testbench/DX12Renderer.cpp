@@ -295,7 +295,7 @@ void DX12Renderer::frame()
 	
 	//ID3D12DescriptorHeap* ppDescriptorHeaps[] = { };
 	//m_ppCommandLists[iFrameIndex]->SetDescriptorHeaps(0, nullptr);
-	//int iIncrementSizeRTV = m_pD3DFactory->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
+	//int iIncrementSizeRTV = m_pD3DFactory->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
 	//D3D12_CPU_DESCRIPTOR_HANDLE handleDH = m_pDHrenderTargets->GetCPUDescriptorHandleForHeapStart();
 	//handleDH.ptr += iIncrementSizeRTV * iFrameIndex;
 
