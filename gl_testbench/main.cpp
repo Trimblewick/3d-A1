@@ -338,7 +338,7 @@ int main(int argc, char *argv[])
 	renderer->setWinTitle("DX12");
 	renderer->setClearColor(0.0, 0.1, 0.1, 1.0);
 	
-	//initialiseTestbench();
+	initialiseTestbench();
 	//run();
 	runDX();
 	shutdown();

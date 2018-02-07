@@ -35,6 +35,12 @@ private:
 	D3D12_VIEWPORT						m_viewport;
 	D3D12_RECT							m_rectScissor;
 
+	ID3D12DescriptorHeap*				m_pDHTexture;
+
+	std::vector<Mesh*> drawList;
+	std::unordered_map<Technique*, std::vector<Mesh*>> drawList2;
+	int iPerMat = 1;
+
 public:
 	DX12Renderer();
 	~DX12Renderer();

@@ -59,7 +59,7 @@ VertexBuffer * DX12Renderer::makeVertexBuffer(size_t size, VertexBuffer::DATA_US
 
 Texture2D * DX12Renderer::makeTexture2D()
 {
-	return nullptr;
+	return new Texture2DDX12(m_pD3DFactory, m_pDHTexture);
 }
 
 Sampler2D * DX12Renderer::makeSampler2D()
@@ -185,6 +185,8 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 	m_rectScissor.right = (long)width;
 	m_rectScissor.bottom = (long)height;
 
+	m_pDHTexture = m_pD3DFactory->CreateDH(1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, true);
+
 	return 0;
 }
 
@@ -291,8 +293,14 @@ void DX12Renderer::setRenderState(RenderState * ps)
 
 }
 
+//int perMat = 1 ... ---- Added to .h file 
 void DX12Renderer::submit(Mesh * mesh)
 {
+	if (this->iPerMat) {
+		drawList2[mesh->technique].push_back(mesh);
+	}
+	else
+		drawList.push_back(mesh);
 }
 
 void DX12Renderer::frame()
