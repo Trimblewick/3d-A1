@@ -163,7 +163,7 @@ void renderScene()
 
 int initialiseTestbench()
 {
-	std::string definePos = "#define POSITION " + std::to_string(POSITION) + "\n";
+	/*std::string definePos = "#define POSITION " + std::to_string(POSITION) + "\n";
 	std::string defineNor = "#define NORMAL " + std::to_string(NORMAL) + "\n";
 	std::string defineUV = "#define TEXTCOORD " + std::to_string(TEXTCOORD) + "\n";
 
@@ -247,12 +247,12 @@ int initialiseTestbench()
 	techniques.push_back(renderer->makeTechnique(materials[0], renderState1));
 	techniques.push_back(renderer->makeTechnique(materials[1], renderer->makeRenderState()));
 	techniques.push_back(renderer->makeTechnique(materials[2], renderer->makeRenderState()));
-	techniques.push_back(renderer->makeTechnique(materials[3], renderer->makeRenderState()));
+	techniques.push_back(renderer->makeTechnique(materials[3], renderer->makeRenderState()));*/
 
 	// create texture
 	Texture2D* fatboy = renderer->makeTexture2D();
 	fatboy->loadFromFile("../assets/textures/fatboy.png");
-	Sampler2D* sampler = renderer->makeSampler2D();
+	/*Sampler2D* sampler = renderer->makeSampler2D();
 	sampler->setWrap(WRAPPING::REPEAT, WRAPPING::REPEAT);
 	fatboy->sampler = sampler;
 
@@ -292,7 +292,7 @@ int initialiseTestbench()
 			m->addTexture(textures[0], DIFFUSE_SLOT);
 
 		scene.push_back(m);
-	}
+	}*/
 	return 0;
 }
 

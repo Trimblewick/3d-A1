@@ -154,9 +154,12 @@ int Texture2DDX12::loadFromFile(std::string filename)
 			return 0;
 	}
 
+	std::wstring stemp = std::wstring(filename.begin(), filename.end());
+	LPCWSTR sw = stemp.c_str();
+
 	// load a decoder for the image
 	hr = pWICFactory->CreateDecoderFromFilename(
-		(LPCWSTR)(filename.c_str()),     // Image we want to load in
+		sw,							     // Image we want to load in
 		NULL,                            // This is a vendor ID, we do not prefer a specific one so set to null
 		GENERIC_READ,                    // We want to read from this file
 		WICDecodeMetadataCacheOnLoad,    // We will cache the metadata right away, rather than when needed, which might be unknown
