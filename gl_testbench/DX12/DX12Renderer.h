@@ -7,6 +7,8 @@
 const unsigned int g_iBackBufferCount = 3;
 #define SAFE_RELEASE(p)      { if (p) { (p)->Release(); (p)=NULL; } }
 
+class MaterialDX12;
+
 class DX12Renderer : public Renderer
 {
 private:
@@ -14,14 +16,14 @@ private:
 	Window*								m_pWindow;
 	D3DFactory*							m_pD3DFactory;
 
-	
+
 	ID3D12CommandQueue*					m_pCommandQueue;
 	IDXGISwapChain3*					m_pSwapChain;
 	float								m_pClearColor[4];
-	
+
 	ID3D12DescriptorHeap*				m_pDHrenderTargets;
 	ID3D12Resource*						m_ppRenderTargets[g_iBackBufferCount];
-	
+
 	unsigned long long					m_pFenceValues[g_iBackBufferCount];
 	ID3D12Fence*						m_ppFenceFrame[g_iBackBufferCount];
 	HANDLE								m_handleFence;
@@ -30,15 +32,17 @@ private:
 	ID3D12GraphicsCommandList*			m_ppCommandLists[g_iBackBufferCount];
 
 	ID3D12RootSignature*				m_pRS;
-	ID3D12PipelineState*				m_pPSO;
 
 	D3D12_VIEWPORT						m_viewport;
 	D3D12_RECT							m_rectScissor;
 
+	MaterialDX12*  					m_pMaterial;
+	
 public:
 	DX12Renderer();
 	~DX12Renderer();
 
+	ID3D12RootSignature* GetRS();
 private:
 
 

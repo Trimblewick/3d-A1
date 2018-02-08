@@ -17,6 +17,11 @@ DX12Renderer::~DX12Renderer()
 {
 }
 
+ID3D12RootSignature * DX12Renderer::GetRS()
+{
+	return m_pRS;
+}
+
 
 LRESULT CALLBACK DX12Renderer::EventHandler(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -44,8 +49,9 @@ LRESULT CALLBACK DX12Renderer::EventHandler(HWND hWnd, UINT message, WPARAM wPar
 
 Material * DX12Renderer::makeMaterial(const std::string & name)
 {
-	//return new MaterialDX12(name);
-	return nullptr;
+	m_pMaterial = new MaterialDX12(name, this, m_pD3DFactory);
+	return m_pMaterial;
+	//return nullptr;
 }
 
 Mesh * DX12Renderer::makeMesh()
@@ -144,8 +150,8 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 
 	//Create resources
 	//VULLE: compile behöver göras i material också. Hur fixar vi det?
-	ID3DBlob* pVSblob = m_pD3DFactory->CompileShader(L"VertexShader.hlsl", "main", "vs_5_1");
-	ID3DBlob* pPSblob = m_pD3DFactory->CompileShader(L"FragmentShader.hlsl", "main", "ps_5_1");
+	//ID3DBlob* pVSblob = m_pD3DFactory->CompileShader(L"VertexShader.hlsl", "main", "vs_5_1");
+	//ID3DBlob* pPSblob = m_pD3DFactory->CompileShader(L"FragmentShader.hlsl", "main", "ps_5_1");
 
 	D3D12_ROOT_SIGNATURE_DESC descRS = CD3DX12_ROOT_SIGNATURE_DESC(D3D12_DEFAULT);// {};
 	descRS.Flags = D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
@@ -156,24 +162,10 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 	//descRS.NumStaticSamplers = 1;
 	//descRS.pStaticSamplers = &CD3DX12_STATIC_SAMPLER_DESC(0);
 
+
 	m_pRS = m_pD3DFactory->CreateRS(&descRS);
-
-
-	D3D12_GRAPHICS_PIPELINE_STATE_DESC descPSO = {};
-	descPSO.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	//descPSO.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
-	descPSO.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-	descPSO.NumRenderTargets = 1;
-	descPSO.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
-	descPSO.VS = { pVSblob->GetBufferPointer(), pVSblob->GetBufferSize() };
-	descPSO.PS = { pPSblob->GetBufferPointer(), pPSblob->GetBufferSize() };
-	descPSO.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
-	descPSO.SampleDesc = descSample;
-	descPSO.SampleMask = 0xffffffff;
-	descPSO.pRootSignature = m_pRS;
 	
 	
-	m_pPSO = m_pD3DFactory->CreatePSO(&descPSO);
 
 	m_viewport.TopLeftX = 0;
 	m_viewport.TopLeftY = 0;
@@ -244,7 +236,6 @@ int DX12Renderer::shutdown()
 		SAFE_RELEASE(m_ppRenderTargets[i]);
 		
 	}
-	SAFE_RELEASE(m_pPSO);
 	SAFE_RELEASE(m_pRS);
 	SAFE_RELEASE(m_pSwapChain);
 	SAFE_RELEASE(m_pCommandQueue);
@@ -310,7 +301,7 @@ void DX12Renderer::frame()
 	m_ppCommandLists[iFrameIndex]->RSSetViewports(1, &m_viewport);
 	m_ppCommandLists[iFrameIndex]->RSSetScissorRects(1, &m_rectScissor);
 
-	m_ppCommandLists[iFrameIndex]->SetPipelineState(m_pPSO);
+	m_ppCommandLists[iFrameIndex]->SetPipelineState(m_pMaterial->GetPSO());
 	m_ppCommandLists[iFrameIndex]->SetGraphicsRootSignature(m_pRS);
 	m_ppCommandLists[iFrameIndex]->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
