@@ -114,7 +114,7 @@ void runDX()
 		}
 		
 		
-		updateScene();
+		//updateScene();
 		renderScene();
 	}
 }
@@ -151,10 +151,10 @@ void updateScene()
 void renderScene()
 {
 	renderer->clearBuffer(CLEAR_BUFFER_FLAGS::COLOR | CLEAR_BUFFER_FLAGS::DEPTH);
-	/*for (auto m : scene)
+	for (auto m : scene)
 	{
 		renderer->submit(m);
-	}*/
+	}
 	renderer->frame();
 	renderer->present();
 	updateDelta();
@@ -241,11 +241,11 @@ int initialiseTestbench()
 	}
 
 	// one technique with wireframe
-	//RenderState* renderState1 = renderer->makeRenderState();
+	RenderState* renderState1 = renderer->makeRenderState();
 	//renderState1->setWireFrame(true);
 
 	// basic technique
-	//techniques.push_back(renderer->makeTechnique(materials[0], renderState1));
+	techniques.push_back(renderer->makeTechnique(materials[0], renderState1));
 	//techniques.push_back(renderer->makeTechnique(materials[1], renderer->makeRenderState()));
 	//techniques.push_back(renderer->makeTechnique(materials[2], renderer->makeRenderState()));
 	//techniques.push_back(renderer->makeTechnique(materials[3], renderer->makeRenderState()));
@@ -268,7 +268,7 @@ int initialiseTestbench()
 	// Create a mesh array with 3 basic vertex buffers.
 	//for (int i = 0; i < TOTAL_TRIS; i++) {
 
-	//	Mesh* m = renderer->makeMesh();
+		Mesh* m = renderer->makeMesh();
 
 	//	constexpr auto numberOfPosElements = std::extent<decltype(triPos)>::value;
 	//	size_t offset = i * sizeof(triPos);
@@ -288,11 +288,11 @@ int initialiseTestbench()
 	//	// we can create a constant buffer outside the material, for example as part of the Mesh.
 	//	m->txBuffer = renderer->makeConstantBuffer(std::string(TRANSLATION_NAME), TRANSLATION);
 	//	
-	//	m->technique = techniques[ i % 4];
+		m->technique = techniques[0];// i % 4];
 	//	if (i % 4 == 2)
 	//		m->addTexture(textures[0], DIFFUSE_SLOT);
 
-	//	scene.push_back(m);
+		scene.push_back(m);
 	//}
 	return 0;
 }

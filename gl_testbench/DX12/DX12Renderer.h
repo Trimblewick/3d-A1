@@ -36,8 +36,12 @@ private:
 	D3D12_VIEWPORT						m_viewport;
 	D3D12_RECT							m_rectScissor;
 
-	MaterialDX12*  					m_pMaterial;
-	
+	//MaterialDX12*  					m_pMaterial;
+	std::vector<Mesh*> drawList;
+
+
+	bool globalWireframeMode = false;
+
 public:
 	DX12Renderer();
 	~DX12Renderer();

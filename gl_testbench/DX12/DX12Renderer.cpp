@@ -49,8 +49,7 @@ LRESULT CALLBACK DX12Renderer::EventHandler(HWND hWnd, UINT message, WPARAM wPar
 
 Material * DX12Renderer::makeMaterial(const std::string & name)
 {
-	m_pMaterial = new MaterialDX12(name, this, m_pD3DFactory);
-	return m_pMaterial;
+	return new MaterialDX12(name, this, m_pD3DFactory);
 	//return nullptr;
 }
 
@@ -76,7 +75,10 @@ Sampler2D * DX12Renderer::makeSampler2D()
 
 RenderState * DX12Renderer::makeRenderState()
 {
-	return nullptr;
+	//RenderStateDX12* newRS = new RenderStateDX12();
+	//newRS->setGlobalWireFrame(&this->globalWireframeMode);
+	//newRS->setWireFrame(false);
+	return nullptr;// newRS;
 }
 
 std::string DX12Renderer::getShaderPath()
@@ -95,9 +97,9 @@ ConstantBuffer * DX12Renderer::makeConstantBuffer(std::string NAME, unsigned int
 	return nullptr;
 }
 
-Technique * DX12Renderer::makeTechnique(Material *, RenderState *)
+Technique * DX12Renderer::makeTechnique(Material* m, RenderState* r)
 {
-	return nullptr;
+	return  new Technique(m, r);
 }
 
 int DX12Renderer::initialize(unsigned int width, unsigned int height)
@@ -286,6 +288,7 @@ void DX12Renderer::setRenderState(RenderState * ps)
 
 void DX12Renderer::submit(Mesh * mesh)
 {
+	this->drawList.push_back(mesh);
 }
 
 void DX12Renderer::frame()
@@ -301,7 +304,8 @@ void DX12Renderer::frame()
 	m_ppCommandLists[iFrameIndex]->RSSetViewports(1, &m_viewport);
 	m_ppCommandLists[iFrameIndex]->RSSetScissorRects(1, &m_rectScissor);
 
-	m_ppCommandLists[iFrameIndex]->SetPipelineState(m_pMaterial->GetPSO());
+	MaterialDX12* mat = (MaterialDX12*)drawList[0]->technique->getMaterial();
+	m_ppCommandLists[iFrameIndex]->SetPipelineState(mat->GetPSO());
 	m_ppCommandLists[iFrameIndex]->SetGraphicsRootSignature(m_pRS);
 	m_ppCommandLists[iFrameIndex]->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
