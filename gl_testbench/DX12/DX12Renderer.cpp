@@ -44,6 +44,7 @@ LRESULT CALLBACK DX12Renderer::EventHandler(HWND hWnd, UINT message, WPARAM wPar
 
 Material * DX12Renderer::makeMaterial(const std::string & name)
 {
+	//return new MaterialDX12(name);
 	return nullptr;
 }
 
@@ -74,12 +75,13 @@ RenderState * DX12Renderer::makeRenderState()
 
 std::string DX12Renderer::getShaderPath()
 {
-	return std::string();
+	return std::string("..\\gl_testbench\\");
+	//return std::string();
 }
 
 std::string DX12Renderer::getShaderExtension()
 {
-	return std::string();
+	return std::string(".hlsl");
 }
 
 ConstantBuffer * DX12Renderer::makeConstantBuffer(std::string NAME, unsigned int location)
@@ -142,7 +144,7 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 
 	//Create resources
 	ID3DBlob* pVSblob = m_pD3DFactory->CompileShader(L"VertexShader.hlsl", "main", "vs_5_1");
-	ID3DBlob* pPSblob = m_pD3DFactory->CompileShader(L"PixelShader.hlsl", "main", "ps_5_1");
+	ID3DBlob* pPSblob = m_pD3DFactory->CompileShader(L"FragmentShader.hlsl", "main", "ps_5_1");
 
 	D3D12_ROOT_SIGNATURE_DESC descRS = CD3DX12_ROOT_SIGNATURE_DESC(D3D12_DEFAULT);// {};
 	descRS.Flags = D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |

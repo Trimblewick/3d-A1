@@ -114,7 +114,7 @@ void runDX()
 		}
 		
 		
-		//updateScene();
+		updateScene();
 		renderScene();
 	}
 }
@@ -139,6 +139,7 @@ void updateScene()
 				0.0
 			};
 			scene[i]->txBuffer->setData(&trans, sizeof(trans), scene[i]->technique->getMaterial(), TRANSLATION);
+			//scene[i]->txBuffer->setData(&trans, sizeof(trans), scene)
 		}
 		// just to make them move...
 		shift+=TOTAL_TRIS / 100.0;
@@ -338,7 +339,7 @@ int main(int argc, char *argv[])
 	renderer->setWinTitle("DX12");
 	renderer->setClearColor(0.0, 0.1, 0.1, 1.0);
 	
-	//initialiseTestbench();
+	initialiseTestbench();
 	//run();
 	runDX();
 	shutdown();
