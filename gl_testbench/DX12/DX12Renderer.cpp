@@ -99,7 +99,7 @@ ConstantBuffer * DX12Renderer::makeConstantBuffer(std::string NAME, unsigned int
 
 Technique * DX12Renderer::makeTechnique(Material* m, RenderState* r)
 {
-	return  new Technique(m, r);
+	return new Technique(m, r);
 }
 
 int DX12Renderer::initialize(unsigned int width, unsigned int height)
