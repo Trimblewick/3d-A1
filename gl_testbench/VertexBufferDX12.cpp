@@ -43,10 +43,10 @@ void VertexBufferDX12::setData(const void * data, size_t size, size_t offset)
 	vertexData.pData = data;
 	vertexData.RowPitch = size;
 	vertexData.SlicePitch = vertexData.RowPitch; //?
-
-	int index = 0; 
-	//UpdateSubresources(m_pRenderer->GetCMDL(index), m_pVertexBuffer, m_pVBUpload, 0/*offset?*/, 0, 1, &vertexData);
-	
+ 
+	int index = 0;
+	UpdateSubresources(m_pRenderer->GetCMDL(index), m_pVertexBuffer, m_pVBUpload, 0/*offset?*/, 0, size, &vertexData);
+	//unbind()?
 	//Resource barrier?
 }
 
