@@ -261,29 +261,29 @@ int initialiseTestbench()
 	samplers.push_back(sampler);*/
 
 	// pre-allocate one single vertex buffer for ALL triangles
-	/*pos = renderer->makeVertexBuffer(TOTAL_TRIS * sizeof(triPos), VertexBuffer::DATA_USAGE::STATIC);
+	pos = renderer->makeVertexBuffer(TOTAL_TRIS * sizeof(triPos), VertexBuffer::DATA_USAGE::STATIC);
 	nor = renderer->makeVertexBuffer(TOTAL_TRIS * sizeof(triNor), VertexBuffer::DATA_USAGE::STATIC);
-	uvs = renderer->makeVertexBuffer(TOTAL_TRIS * sizeof(triUV), VertexBuffer::DATA_USAGE::STATIC);*/
+	uvs = renderer->makeVertexBuffer(TOTAL_TRIS * sizeof(triUV), VertexBuffer::DATA_USAGE::STATIC);
 
 	// Create a mesh array with 3 basic vertex buffers.
-	//for (int i = 0; i < TOTAL_TRIS; i++) {
+	for (int i = 0; i < TOTAL_TRIS; i++) {
 
 		Mesh* m = renderer->makeMesh();
 
-	//	constexpr auto numberOfPosElements = std::extent<decltype(triPos)>::value;
-	//	size_t offset = i * sizeof(triPos);
-	//	pos->setData(triPos, sizeof(triPos), offset);
-	//	m->addIAVertexBufferBinding(pos, offset, numberOfPosElements, sizeof(float4), POSITION);
+		constexpr auto numberOfPosElements = std::extent<decltype(triPos)>::value;
+		size_t offset = i * sizeof(triPos);
+		pos->setData(triPos, sizeof(triPos), offset);
+		m->addIAVertexBufferBinding(pos, offset, numberOfPosElements, sizeof(float4), POSITION);
 
-	//	constexpr auto numberOfNorElements = std::extent<decltype(triNor)>::value;
-	//	offset = i * sizeof(triNor);
-	//	nor->setData(triNor, sizeof(triNor), offset);
-	//	m->addIAVertexBufferBinding(nor, offset, numberOfNorElements, sizeof(float4), NORMAL);
+		constexpr auto numberOfNorElements = std::extent<decltype(triNor)>::value;
+		offset = i * sizeof(triNor);
+		nor->setData(triNor, sizeof(triNor), offset);
+		m->addIAVertexBufferBinding(nor, offset, numberOfNorElements, sizeof(float4), NORMAL);
 
-	//	constexpr auto numberOfUVElements = std::extent<decltype(triUV)>::value;
-	//	offset = i * sizeof(triUV);
-	//	uvs->setData(triUV, sizeof(triUV), offset);
-	//	m->addIAVertexBufferBinding(uvs, offset, numberOfUVElements , sizeof(float2), TEXTCOORD);
+		constexpr auto numberOfUVElements = std::extent<decltype(triUV)>::value;
+		offset = i * sizeof(triUV);
+		uvs->setData(triUV, sizeof(triUV), offset);
+		m->addIAVertexBufferBinding(uvs, offset, numberOfUVElements , sizeof(float2), TEXTCOORD);
 
 	//	// we can create a constant buffer outside the material, for example as part of the Mesh.
 	//	m->txBuffer = renderer->makeConstantBuffer(std::string(TRANSLATION_NAME), TRANSLATION);
@@ -293,7 +293,7 @@ int initialiseTestbench()
 	//		m->addTexture(textures[0], DIFFUSE_SLOT);
 
 		scene.push_back(m);
-	//}
+	}
 	return 0;
 }
 

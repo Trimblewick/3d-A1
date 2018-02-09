@@ -17,6 +17,11 @@ DX12Renderer::~DX12Renderer()
 {
 }
 
+ID3D12GraphicsCommandList * DX12Renderer::GetCMDL(int index)
+{
+	return m_ppCommandLists[index];
+}
+
 ID3D12RootSignature * DX12Renderer::GetRS()
 {
 	return m_pRS;
@@ -60,7 +65,7 @@ Mesh * DX12Renderer::makeMesh()
 
 VertexBuffer * DX12Renderer::makeVertexBuffer(size_t size, VertexBuffer::DATA_USAGE usage)
 {
-	return nullptr;
+	return new VertexBufferDX12(size, usage, this,m_pD3DFactory);
 }
 
 Texture2D * DX12Renderer::makeTexture2D()
@@ -148,13 +153,6 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 		m_ppCommandLists[i]->Close();
 	}
 
-
-
-	//Create resources
-	//VULLE: compile behöver göras i material också. Hur fixar vi det?
-	//ID3DBlob* pVSblob = m_pD3DFactory->CompileShader(L"VertexShader.hlsl", "main", "vs_5_1");
-	//ID3DBlob* pPSblob = m_pD3DFactory->CompileShader(L"FragmentShader.hlsl", "main", "ps_5_1");
-
 	D3D12_ROOT_SIGNATURE_DESC descRS = CD3DX12_ROOT_SIGNATURE_DESC(D3D12_DEFAULT);// {};
 	descRS.Flags = D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
 		D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
@@ -166,7 +164,6 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 
 
 	m_pRS = m_pD3DFactory->CreateRS(&descRS);
-	
 	
 
 	m_viewport.TopLeftX = 0;

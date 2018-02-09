@@ -46,6 +46,7 @@ public:
 	DX12Renderer();
 	~DX12Renderer();
 
+	ID3D12GraphicsCommandList* GetCMDL(int index);
 	ID3D12RootSignature* GetRS();
 private:
 
