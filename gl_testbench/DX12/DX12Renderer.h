@@ -37,6 +37,8 @@ private:
 
 	ID3D12DescriptorHeap*				m_pDHTexture;
 
+	std::vector<D3D12_ROOT_PARAMETER>	m_rootParameters;
+
 	std::vector<Mesh*> drawList;
 	std::unordered_map<Technique*, std::vector<Mesh*>> drawList2;
 	int iPerMat = 1;

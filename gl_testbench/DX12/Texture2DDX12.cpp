@@ -19,6 +19,7 @@ Texture2DDX12::~Texture2DDX12()
 
 void Texture2DDX12::bind(unsigned int slot)
 {
+
 }
 
 // get the dxgi format equivilent of a wic format
@@ -260,11 +261,12 @@ int Texture2DDX12::loadFromFile(std::string filename)
 
 		m_pResourceTexture = _pD3DFactory->CreateCommittedResource(&descTexture, &initData);
 
+
 		D3D12_SHADER_RESOURCE_VIEW_DESC descSRV = {};
-		descSRV.Texture2D = D3D12_TEX2D_SRV();
 		descSRV.Shader4ComponentMapping = D3D12_DEFAULT_SHADER_4_COMPONENT_MAPPING;
 		descSRV.Format = dxgiFormat;
 		descSRV.ViewDimension = D3D12_SRV_DIMENSION_TEXTURE2D;
+		descSRV.Texture2D.MipLevels = 1;
 
 		_pD3DFactory->GetDevice()->CreateShaderResourceView(m_pResourceTexture, &descSRV, _pDHTexture->GetCPUDescriptorHandleForHeapStart());
 

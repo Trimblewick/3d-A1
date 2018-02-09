@@ -1,5 +1,6 @@
 #include "DX12Renderer.h"
 #include "MaterialDX12.h"
+#include "Sampler2DDX12.h"
 #include "MeshDX12.h"
 #include "../Technique.h"
 #include "ResourceBindingDX12.h"
@@ -64,7 +65,7 @@ Texture2D * DX12Renderer::makeTexture2D()
 
 Sampler2D * DX12Renderer::makeSampler2D()
 {
-	return nullptr;
+	return new Sampler2DDX12();
 }
 
 RenderState * DX12Renderer::makeRenderState()
@@ -107,7 +108,7 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 
 	DXGI_SAMPLE_DESC descSample = {};
 	descSample.Count = 1;
-	
+
 
 	DXGI_SWAP_CHAIN_DESC descSwapChain = {};
 	descSwapChain.BufferCount = g_iBackBufferCount;
@@ -132,7 +133,7 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 
 		m_pD3DFactory->GetDevice()->CreateRenderTargetView(m_ppRenderTargets[i], nullptr, handleDH);
 		handleDH.ptr += iDHIncrementSize;
-		
+
 		m_ppCommandAllocators[i] = m_pD3DFactory->CreateCA();
 		m_ppCommandLists[i] = m_pD3DFactory->CreateCL(m_ppCommandAllocators[i]);
 		m_ppCommandLists[i]->Close();
@@ -144,21 +145,48 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 	ID3DBlob* pVSblob = m_pD3DFactory->CompileShader(L"VertexShader.hlsl", "main", "vs_5_1");
 	ID3DBlob* pPSblob = m_pD3DFactory->CompileShader(L"PixelShader.hlsl", "main", "ps_5_1");
 
-	D3D12_ROOT_SIGNATURE_DESC descRS = CD3DX12_ROOT_SIGNATURE_DESC(D3D12_DEFAULT);// {};
-	descRS.Flags = D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
-	//descRS.NumParameters = 0;// rootParameters.size();
-	//descRS.pParameters = 0;// rootParameters.data();
-	//descRS.NumStaticSamplers = 1;
-	//descRS.pStaticSamplers = &CD3DX12_STATIC_SAMPLER_DESC(0);
+	D3D12_ROOT_DESCRIPTOR rd;
+	rd.RegisterSpace = 0;
+	rd.ShaderRegister = 0;
+
+	D3D12_ROOT_PARAMETER rp[1];
+	rp[0].Descriptor = rd;
+	rp[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_SRV;// D3D12_ROOT_PARAMETER_TYPE_SRV;
+	rp[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	
+
+	D3D12_STATIC_SAMPLER_DESC descStandardSampler[1];
+
+	descStandardSampler[0].Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
+	descStandardSampler[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	descStandardSampler[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	descStandardSampler[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	descStandardSampler[0].MipLODBias = 0;
+	descStandardSampler[0].MaxAnisotropy = 0;
+	descStandardSampler[0].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+	descStandardSampler[0].BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
+	descStandardSampler[0].MinLOD = 0.0f;
+	descStandardSampler[0].MaxLOD = D3D12_FLOAT32_MAX;
+	descStandardSampler[0].ShaderRegister = 0;
+	descStandardSampler[0].RegisterSpace = 0;
+	descStandardSampler[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+
+	CD3DX12_ROOT_SIGNATURE_DESC descRS = {};// CD3DX12_ROOT_SIGNATURE_DESC(D3D12_DEFAULT);// {};
+	//descRS.Init(1, rp, 1, descStandardSampler);
+	descRS.Flags = D3D12_ROOT_SIGNATURE_FLAGS::D3D12_ROOT_SIGNATURE_FLAG_NONE;
+	descRS.NumParameters = 1;// rootParameters.size();
+	descRS.pParameters = rp;// rootParameters.data();
+	descRS.NumStaticSamplers = 1;
+	descRS.pStaticSamplers = descStandardSampler;
+	
 
 	m_pRS = m_pD3DFactory->CreateRS(&descRS);
 
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC descPSO = {};
 	descPSO.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	//descPSO.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	descPSO.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	descPSO.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 	descPSO.NumRenderTargets = 1;
 	descPSO.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
@@ -169,6 +197,7 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 	descPSO.SampleDesc = descSample;
 	descPSO.SampleMask = 0xffffffff;
 	descPSO.pRootSignature = m_pRS;
+
 	
 	
 	m_pPSO = m_pD3DFactory->CreatePSO(&descPSO);

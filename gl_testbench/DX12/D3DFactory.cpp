@@ -191,12 +191,17 @@ ID3D12Resource * D3DFactory::CreateCommittedResource(D3D12_RESOURCE_DESC* descRe
 	pCL->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(pResource, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
 
 	pCL->Close();
-	m_pCQUpload->ExecuteCommandLists(1, (ID3D12CommandList**)&pCL);
+
+	ID3D12CommandList* ppCLs[] = { pCL };
+
+	m_pCQUpload->ExecuteCommandLists(1, ppCLs);
 	m_pCQUpload->Signal(pFence, 1);
 
-	pFence->SetEventOnCompletion(1, eventHandle);
-	WaitForSingleObject(eventHandle, INFINITE);
-
+	if (pFence->GetCompletedValue() < 1)
+	{
+		pFence->SetEventOnCompletion(1, eventHandle);
+		WaitForSingleObject(eventHandle, INFINITE);
+	}
 	pCA->Release();
 	pCL->Release();
 	pFence->Release();
