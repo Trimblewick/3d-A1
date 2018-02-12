@@ -332,6 +332,7 @@ void shutdown() {
 
 int main(int argc, char *argv[])
 {
+
 	//renderer = Renderer::makeRenderer(Renderer::BACKEND::GL45);
 	renderer = Renderer::makeRenderer(Renderer::BACKEND::DX12);
 	renderer->initialize(800,600);

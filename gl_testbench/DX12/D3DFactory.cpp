@@ -6,6 +6,14 @@
 
 D3DFactory::D3DFactory()
 {
+	{
+		ID3D12Debug* debugController;
+		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
+		{
+			debugController->EnableDebugLayer();
+		}
+
+	}
 	HRESULT hr;
 	DxAssert(CreateDXGIFactory1(IID_PPV_ARGS(&m_pDXGIFactory)), S_OK);
 

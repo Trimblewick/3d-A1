@@ -145,13 +145,23 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 	ID3DBlob* pVSblob = m_pD3DFactory->CompileShader(L"VertexShader.hlsl", "main", "vs_5_1");
 	ID3DBlob* pPSblob = m_pD3DFactory->CompileShader(L"PixelShader.hlsl", "main", "ps_5_1");
 
-	D3D12_ROOT_DESCRIPTOR rd;
-	rd.RegisterSpace = 0;
-	rd.ShaderRegister = 0;
+
+	D3D12_DESCRIPTOR_RANGE tableRange[1];
+	tableRange[0].NumDescriptors = 1;
+	tableRange[0].BaseShaderRegister = 0;
+	tableRange[0].RegisterSpace = 0;
+	tableRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	tableRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+
+
+	D3D12_ROOT_DESCRIPTOR_TABLE rdt;
+	rdt.NumDescriptorRanges = 1;
+	rdt.pDescriptorRanges = tableRange;
+	
 
 	D3D12_ROOT_PARAMETER rp[1];
-	rp[0].Descriptor = rd;
-	rp[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_SRV;// D3D12_ROOT_PARAMETER_TYPE_SRV;
+	rp[0].DescriptorTable = rdt;
+	rp[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	rp[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 	
 
@@ -162,7 +172,7 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 	descStandardSampler[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
 	descStandardSampler[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
 	descStandardSampler[0].MipLODBias = 0;
-	descStandardSampler[0].MaxAnisotropy = 0;
+	descStandardSampler[0].MaxAnisotropy = 1;
 	descStandardSampler[0].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
 	descStandardSampler[0].BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
 	descStandardSampler[0].MinLOD = 0.0f;
@@ -170,11 +180,14 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 	descStandardSampler[0].ShaderRegister = 0;
 	descStandardSampler[0].RegisterSpace = 0;
 	descStandardSampler[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	
 
-
-	CD3DX12_ROOT_SIGNATURE_DESC descRS = {};// CD3DX12_ROOT_SIGNATURE_DESC(D3D12_DEFAULT);// {};
+	D3D12_ROOT_SIGNATURE_DESC descRS = {};// CD3DX12_ROOT_SIGNATURE_DESC(D3D12_DEFAULT);// {};
 	//descRS.Init(1, rp, 1, descStandardSampler);
-	descRS.Flags = D3D12_ROOT_SIGNATURE_FLAGS::D3D12_ROOT_SIGNATURE_FLAG_NONE;
+	descRS.Flags =  
+		D3D12_ROOT_SIGNATURE_FLAGS::D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
+		D3D12_ROOT_SIGNATURE_FLAGS::D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
+		D3D12_ROOT_SIGNATURE_FLAGS::D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
 	descRS.NumParameters = 1;// rootParameters.size();
 	descRS.pParameters = rp;// rootParameters.data();
 	descRS.NumStaticSamplers = 1;
@@ -183,10 +196,13 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 
 	m_pRS = m_pD3DFactory->CreateRS(&descRS);
 
+	DXGI_SWAP_CHAIN_DESC tempSwapChainDesc;
+	m_pSwapChain->GetDesc(&tempSwapChainDesc);
+
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC descPSO = {};
 	descPSO.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	descPSO.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	//descPSO.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	descPSO.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 	descPSO.NumRenderTargets = 1;
 	descPSO.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
@@ -336,17 +352,19 @@ void DX12Renderer::frame()
 {
 	int iFrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 	
-	//ID3D12DescriptorHeap* ppDescriptorHeaps[] = { };
-	//m_ppCommandLists[iFrameIndex]->SetDescriptorHeaps(0, nullptr);
-	//int iIncrementSizeRTV = m_pD3DFactory->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	//D3D12_CPU_DESCRIPTOR_HANDLE handleDH = m_pDHrenderTargets->GetCPUDescriptorHandleForHeapStart();
-	//handleDH.ptr += iIncrementSizeRTV * iFrameIndex;
+	ID3D12DescriptorHeap* ppDescriptorHeaps[] = { m_pDHTexture };
+	m_ppCommandLists[iFrameIndex]->SetDescriptorHeaps(1, ppDescriptorHeaps);
+
+	
 
 	m_ppCommandLists[iFrameIndex]->RSSetViewports(1, &m_viewport);
 	m_ppCommandLists[iFrameIndex]->RSSetScissorRects(1, &m_rectScissor);
 
 	m_ppCommandLists[iFrameIndex]->SetPipelineState(m_pPSO);
 	m_ppCommandLists[iFrameIndex]->SetGraphicsRootSignature(m_pRS);
+
+	m_ppCommandLists[iFrameIndex]->SetGraphicsRootDescriptorTable(0, m_pDHTexture->GetGPUDescriptorHandleForHeapStart());
+
 	m_ppCommandLists[iFrameIndex]->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
 
 	m_ppCommandLists[iFrameIndex]->DrawInstanced(3, 1, 0, 0);

@@ -9,8 +9,7 @@ struct VS_OUT
 	float2 uv : TEXCOORD;
 };
 
-float4 main(VS_OUT inputblargh) : SV_TARGET
+float4 main(VS_OUT input) : SV_TARGET
 {
-
-	return t1.Sample(s1, inputblargh.uv); //tex.Sample(s, input.uv);//
+	return t1.Sample(s1, input.uv); 
 }
