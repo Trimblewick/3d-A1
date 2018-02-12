@@ -39,6 +39,7 @@ void renderScene();
 char gTitleBuff[256];
 double gLastDelta = 0.0;
 
+
 void updateDelta()
 {
 	#define WINDOW_SIZE 10
@@ -158,7 +159,7 @@ void renderScene()
 	renderer->frame();
 	renderer->present();
 	updateDelta();
-	sprintf(gTitleBuff, "OpenGL - %3.0lf", gLastDelta);
+	sprintf(gTitleBuff, "DirectX12 - %3.0lf", gLastDelta);
 	renderer->setWinTitle(gTitleBuff);
 }
 
@@ -287,7 +288,7 @@ int initialiseTestbench()
 		m->addIAVertexBufferBinding(uvs, offset, numberOfUVElements , sizeof(float2), TEXTCOORD);
 		
 	//	// we can create a constant buffer outside the material, for example as part of the Mesh.
-	//	m->txBuffer = renderer->makeConstantBuffer(std::string(TRANSLATION_NAME), TRANSLATION);
+		m->txBuffer = renderer->makeConstantBuffer(std::string(TRANSLATION_NAME), TRANSLATION);
 	//	
 		m->technique = techniques[0];// i % 4];
 	//	if (i % 4 == 2)

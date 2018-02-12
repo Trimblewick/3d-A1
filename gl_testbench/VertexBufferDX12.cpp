@@ -53,7 +53,6 @@ void VertexBufferDX12::setData(const void * data, size_t size, size_t offset)
 void VertexBufferDX12::bind(size_t offset, size_t size, unsigned int location)
 {
 	assert(size + offset <= totalSize);
-
 }
 
 void VertexBufferDX12::unbind()
