@@ -1,13 +1,13 @@
 #include "D3DFactory.h"
 
-
+#include <wrl.h>
 #include <tchar.h>
 #define DxAssert(x, y)	{ if (x != y) { MessageBox(NULL, _T("DxAssert"), _T("ERROR"), MB_OK); assert(x == y); } }
 
 D3DFactory::D3DFactory()
 {
 	{
-		ID3D12Debug* debugController;
+		Microsoft::WRL::ComPtr<ID3D12Debug> debugController;
 		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
 		{
 			debugController->EnableDebugLayer();
@@ -63,6 +63,8 @@ D3DFactory::~D3DFactory()
 		m_pDevice->Release();
 	if (m_pDXGIFactory)
 		m_pDXGIFactory->Release();
+	if (m_pCQUpload)
+		m_pCQUpload->Release();
 }
 
 ID3D12Device * D3DFactory::GetDevice()

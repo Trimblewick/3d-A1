@@ -23,9 +23,7 @@ private:
 	size_t totalSize;
 	int _handle;
 
-	ID3D12Resource*				m_pVertexBuffer;
 	ID3D12DescriptorHeap*		m_pDHverts;
-	
 
 	ID3D12Resource*				m_pVBUpload;
 	D3DFactory*					_pFactory;
