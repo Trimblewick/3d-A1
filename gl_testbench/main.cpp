@@ -115,7 +115,7 @@ void runDX()
 		}
 		
 		
-		//updateScene();
+		updateScene();
 		renderScene();
 	}
 }
