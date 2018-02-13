@@ -5,6 +5,8 @@
 
 VertexBufferDX12::VertexBufferDX12(size_t size, VertexBuffer::DATA_USAGE usage, D3DFactory* pFactory)
 {
+	m_pDHverts = nullptr;
+	m_pVBUpload = nullptr;
 	totalSize = size;
 	_pFactory = pFactory;
 
@@ -23,7 +25,8 @@ VertexBufferDX12::VertexBufferDX12(size_t size, VertexBuffer::DATA_USAGE usage, 
 
 VertexBufferDX12::~VertexBufferDX12()
 {
-
+	SAFE_RELEASE(m_pDHverts);
+	SAFE_RELEASE(m_pVBUpload);
 }
 
 void VertexBufferDX12::setData(const void * data, size_t size, size_t offset)

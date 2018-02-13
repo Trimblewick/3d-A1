@@ -263,6 +263,8 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 
 	m_pPSOs.push_back(m_pD3DFactory->CreatePSO(&descPSO));
 
+	SAFE_RELEASE(pVSblob);
+	SAFE_RELEASE(pPSblob);
 
 	m_viewport.TopLeftX = 0;
 	m_viewport.TopLeftY = 0;
@@ -301,12 +303,8 @@ void DX12Renderer::present()
 	m_pCommandQueue->ExecuteCommandLists(1, ppCLs);
 	m_pCommandQueue->Signal(m_ppFenceFrame[iFrameIndex], m_pFenceValues[iFrameIndex]);
 
-
-
 	m_pSwapChain->Present(0, 0);
 
-
-	
 	iFrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 	if (m_ppFenceFrame[iFrameIndex]->GetCompletedValue() < m_pFenceValues[iFrameIndex])
 	{
@@ -412,9 +410,11 @@ void DX12Renderer::frame()
 	m_ppCommandLists[iFrameIndex]->SetGraphicsRootSignature(m_pRS);
 	
 	//first pipeline.
-	m_ppCommandLists[iFrameIndex]->SetPipelineState(m_pPSOs[0]);
+	m_ppCommandLists[iFrameIndex]->SetPipelineState(m_pPSOs[1]);
 	//texture table
 	m_ppCommandLists[iFrameIndex]->SetGraphicsRootDescriptorTable(0, m_pDHTexture->GetGPUDescriptorHandleForHeapStart());
+
+	m_ppCommandLists[iFrameIndex]->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	
 	float color[4];
 	color[0] = 0.0f;
@@ -424,9 +424,8 @@ void DX12Renderer::frame()
 	//color constants
 	m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(1, 4, color, 0);
 
-	m_ppCommandLists[iFrameIndex]->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-	int j = 0;
+	
 	for (auto work : drawList2)
 	{
 
@@ -438,14 +437,49 @@ void DX12Renderer::frame()
 		test1->bind(m_ppCommandLists[iFrameIndex], 3);
 		test2->bind(m_ppCommandLists[iFrameIndex], 4);
 			
-		
+		int j = 0;
+		for (int i = j; i < m.size(); i += 4)
+		{
+			m_ppCommandLists[iFrameIndex]->DrawInstanced(m[i]->geometryBuffers[0].numElements, 1, 0, 0);
+		}
+		j++;
+		m_ppCommandLists[iFrameIndex]->SetPipelineState(m_pPSOs[0]);
+		color[0] = 0.0f;
+		color[1] = 1.0f;
+		color[2] = 0.0f;
+		color[3] = 1.0f;
+		//color constants
+		m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(1, 4, color, 0);
+		for (int i = j; i < m.size(); i += 4)
+		{
+			m_ppCommandLists[iFrameIndex]->DrawInstanced(m[i]->geometryBuffers[0].numElements, 1, 0, 0);
+		}
+		j++;
+
+		color[0] = 1.0f;
+		color[1] = 1.0f;
+		color[2] = 1.0f;
+		color[3] = 0.0f;//<<----- This way we know it's a texture
+		//color constants
+		m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(1, 4, color, 0);
+		for (int i = j; i < m.size(); i += 4)
+		{
+			m_ppCommandLists[iFrameIndex]->DrawInstanced(m[i]->geometryBuffers[0].numElements, 1, 0, 0);
+		}
+
+		j++;
+
+		color[0] = 1.0f;
+		color[1] = 0.0f;
+		color[2] = 0.0f;
+		color[3] = 1.0f;
+		//color constants
+		m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(1, 4, color, 0);
 		for (int i = j; i < m.size(); i += 4)
 		{
 			m_ppCommandLists[iFrameIndex]->DrawInstanced(m[i]->geometryBuffers[0].numElements, 1, 0, 0);
 		}
 	}
 
-
-	m_ppCommandLists[iFrameIndex]->DrawInstanced(3, 1, 0, 0);
 }
 
