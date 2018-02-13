@@ -114,6 +114,9 @@
     <ClCompile Include="DX12\VertexBufferDX12.cpp">
       <Filter>Source Files\DX12</Filter>
     </ClCompile>
+    <ClCompile Include="DX12\ConstantBufferDX12.cpp">
+      <Filter>Source Files\DX12</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Renderer.h">

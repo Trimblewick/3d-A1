@@ -172,7 +172,7 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 	rdt.pDescriptorRanges = tableRange;
 	
 
-	D3D12_ROOT_PARAMETER rp[2];
+	D3D12_ROOT_PARAMETER rp[5];
 	rp[0].DescriptorTable = rdt;
 	rp[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	rp[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
@@ -204,6 +204,24 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 	rp[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
 	rp[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
 
+
+	D3D12_ROOT_DESCRIPTOR rd;
+	rd.RegisterSpace = 0;
+	rd.ShaderRegister = 1;
+
+	rp[2].Descriptor = rd;
+	rp[2].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	rp[2].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
+
+	rd.ShaderRegister = 2;
+	rp[3].Descriptor = rd;
+	rp[3].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	rp[3].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
+
+	rd.ShaderRegister = 3;
+	rp[4].Descriptor = rd;
+	rp[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+	rp[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
 
 
 	D3D12_ROOT_SIGNATURE_DESC descRS = {};// CD3DX12_ROOT_SIGNATURE_DESC(D3D12_DEFAULT);// {};
@@ -406,6 +424,26 @@ void DX12Renderer::frame()
 	m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(1, 3, color, 0);
 
 	m_ppCommandLists[iFrameIndex]->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	int j = 0;
+	for (auto work : drawList2)
+	{
+
+		std::vector<Mesh*> m = work.second;
+		VertexBufferDX12* test = (VertexBufferDX12*)m[0]->geometryBuffers[0].buffer;
+		VertexBufferDX12* test1 = (VertexBufferDX12*)m[0]->geometryBuffers[1].buffer;
+		VertexBufferDX12* test2 = (VertexBufferDX12*)m[0]->geometryBuffers[2].buffer;
+		test->bind(m_ppCommandLists[iFrameIndex], 2);
+		test1->bind(m_ppCommandLists[iFrameIndex], 3);
+		test2->bind(m_ppCommandLists[iFrameIndex], 4);
+			
+		
+		for (int i = j; i < m.size(); i += 4)
+		{
+			m_ppCommandLists[iFrameIndex]->DrawInstanced(m[i]->geometryBuffers[0].numElements, 1, 0, 0);
+		}
+	}
+
 
 	m_ppCommandLists[iFrameIndex]->DrawInstanced(3, 1, 0, 0);
 }

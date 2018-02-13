@@ -159,7 +159,7 @@ void renderScene()
 	renderer->frame();
 	renderer->present();
 	updateDelta();
-	sprintf(gTitleBuff, "DirectX12 - %3.0lf", gLastDelta);
+	sprintf(gTitleBuff, "Bonstant Cuffer - %3.0lf", gLastDelta);
 	renderer->setWinTitle(gTitleBuff);
 }
 
