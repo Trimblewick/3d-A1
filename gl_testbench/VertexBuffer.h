@@ -7,7 +7,7 @@ public:
 	VertexBuffer() {};
 	virtual ~VertexBuffer() {}
 	virtual void setData(const void* data, size_t size, size_t offset) = 0;
-	virtual void bind(size_t offset, size_t size, unsigned int location) = 0;
+	virtual void bind(size_t offset, size_t size, unsigned int location) {};// = 0; <<----- whoops
 	virtual void unbind() = 0;
 	virtual size_t getSize() = 0;
 	void incRef() { refs++; };

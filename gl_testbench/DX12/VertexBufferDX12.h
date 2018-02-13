@@ -12,18 +12,22 @@ public:
 	~VertexBufferDX12();
 
 	void setData(const void* data, size_t size, size_t offset);
-	void bind(size_t offset, size_t size, unsigned int location);
+	void bind(ID3D12GraphicsCommandList* pCL, int iParameterIndex);
 	void unbind();
 	size_t getSize();
 
+	bool bLameAssHack;
 	static int usageMapping[3];
 
 private:
 	size_t totalSize;
 	int _handle;
 
-	ID3D12Resource* m_pVertexBuffer;
-	ID3D12Resource* m_pVBUpload;
-	D3DFactory* _pFactory;
+	ID3D12Resource*				m_pVertexBuffer;
+	ID3D12DescriptorHeap*		m_pDHverts;
+	
+
+	ID3D12Resource*				m_pVBUpload;
+	D3DFactory*					_pFactory;
 };
 
