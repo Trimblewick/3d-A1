@@ -3,36 +3,9 @@
 #include <assert.h>
 #include <fstream>
 
-// recursive function to split a string by a delimiter
-// easier to read than all that crap using STL...
-//void split(const char* text, std::vector<std::string>* const temp, const char delim = ' ')
-//void split(std::string text, std::vector<std::string>* const temp, const char delim = ' ')
-//{
-	//unsigned int delimPos = strcspn(text, (const char*)&delim);
-	//if (delimPos == strlen(text))
-	//{
-	//	temp->push_back(std::string(text));
-	//}
-	//else {
-	//	temp->push_back(std::string(text, delimPos));
-	//	split(text + delimPos, temp, delim);
-	//}
-	/*
-	int pos = text.find(delim, 0);
-	if (pos == -1)
-	temp->push_back(text);
-	else {
-	temp->push_back(text.substr(0, pos));
-	split(text.substr(pos + 1, text.length() - pos - 1), temp, delim);
-	}
-	*/
-//} //shameless copy
-
-//MaterialDX12::MaterialDX12(D3DFactory* factory) { m_pFactory = factory; }
-
 MaterialDX12::MaterialDX12()
 {
-    m_pPSO = nullptr;
+	m_pPSO = nullptr;
 }
 
 MaterialDX12::MaterialDX12(std::string _name, DX12Renderer* renderer, D3DFactory* factory)

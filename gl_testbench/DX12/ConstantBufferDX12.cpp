@@ -26,8 +26,8 @@ void ConstantBufferDX12::setData(const void * data, size_t size, Material * m, u
     //What is Matieral* m used for?
 
     D3D12_RANGE range;
-    range.Begin = 0;    //?
-    range.End = 0;   //?
+    range.Begin = 0;
+    range.End = 0; 
 
     uint8_t* address;
     m_pVBUpload->Map(0, &range, reinterpret_cast<void**>(&address));
