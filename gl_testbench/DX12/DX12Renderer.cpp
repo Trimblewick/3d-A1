@@ -424,7 +424,7 @@ void DX12Renderer::frame()
 	//color constants
 	m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(1, 4, color, 0);
 
-
+	int testttt = drawList2.size();
 	
 	for (auto work : drawList2)
 	{
@@ -480,6 +480,7 @@ void DX12Renderer::frame()
 			m_ppCommandLists[iFrameIndex]->DrawInstanced(m[i]->geometryBuffers[0].numElements, 1, 0, 0);
 		}
 	}
+	drawList2.clear();
 
 }
 
