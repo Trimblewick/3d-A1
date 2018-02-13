@@ -218,7 +218,7 @@ int initialiseTestbench()
 		1.0,0.0,0.0,1.0
 	};
 
-	for (int i = 0; i < 1; ++i)// materialDefs.size(); i++)
+	for (int i = 0; i < materialDefs.size(); i++)
 	{
 		// set material name from text file?
 		Material* m = renderer->makeMaterial("material_" + std::to_string(i));
@@ -240,33 +240,33 @@ int initialiseTestbench()
 		
 		materials.push_back(m);
 	}
-
+	
 	// one technique with wireframe
 	RenderState* renderState1 = renderer->makeRenderState();
 	//renderState1->setWireFrame(true);
 
 	// basic technique
 	techniques.push_back(renderer->makeTechnique(materials[0], renderState1));
-	//techniques.push_back(renderer->makeTechnique(materials[1], renderer->makeRenderState()));
-	//techniques.push_back(renderer->makeTechnique(materials[2], renderer->makeRenderState()));
-	//techniques.push_back(renderer->makeTechnique(materials[3], renderer->makeRenderState()));
+	techniques.push_back(renderer->makeTechnique(materials[1], renderer->makeRenderState()));
+	techniques.push_back(renderer->makeTechnique(materials[2], renderer->makeRenderState()));
+	techniques.push_back(renderer->makeTechnique(materials[3], renderer->makeRenderState()));
 
 	// create texture
-	/*Texture2D* fatboy = renderer->makeTexture2D();
+	Texture2D* fatboy = renderer->makeTexture2D();
 	fatboy->loadFromFile("../assets/textures/fatboy.png");
 	Sampler2D* sampler = renderer->makeSampler2D();
 	sampler->setWrap(WRAPPING::REPEAT, WRAPPING::REPEAT);
 	fatboy->sampler = sampler;
 
 	textures.push_back(fatboy);
-	samplers.push_back(sampler);*/
-
+	samplers.push_back(sampler);
+	
 	// pre-allocate one single vertex buffer for ALL triangles
 	pos = renderer->makeVertexBuffer(TOTAL_TRIS * sizeof(triPos), VertexBuffer::DATA_USAGE::STATIC);
 	nor = renderer->makeVertexBuffer(TOTAL_TRIS * sizeof(triNor), VertexBuffer::DATA_USAGE::STATIC);
 	uvs = renderer->makeVertexBuffer(TOTAL_TRIS * sizeof(triUV), VertexBuffer::DATA_USAGE::STATIC);
 
-
+	
 	// Create a mesh array with 3 basic vertex buffers.
 	for (int i = 0; i < TOTAL_TRIS; i++) {
 
@@ -291,8 +291,8 @@ int initialiseTestbench()
 		m->txBuffer = renderer->makeConstantBuffer(std::string(TRANSLATION_NAME), TRANSLATION);
 	//	
 		m->technique = techniques[0];// i % 4];
-	//	if (i % 4 == 2)
-	//		m->addTexture(textures[0], DIFFUSE_SLOT);
+		if (i % 4 == 2)
+			m->addTexture(textures[0], DIFFUSE_SLOT);
 
 		scene.push_back(m);
 	}
@@ -335,6 +335,7 @@ void shutdown() {
 
 int main(int argc, char *argv[])
 {
+
 	//renderer = Renderer::makeRenderer(Renderer::BACKEND::GL45);
 	renderer = Renderer::makeRenderer(Renderer::BACKEND::DX12);
 	renderer->initialize(800,600);

@@ -149,12 +149,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ConstantBuffer.cpp" />
-    <ClCompile Include="ConstantBufferDX12.cpp" />
     <ClCompile Include="DX12\D3DFactory.cpp" />
     <ClCompile Include="DX12\DX12Renderer.cpp" />
+    <ClCompile Include="DX12\MaterialDX12.cpp" />
+    <ClCompile Include="DX12\MeshDX12.cpp" />
+    <ClCompile Include="DX12\Sampler2DDX12.cpp" />
+    <ClCompile Include="DX12\Texture2DDX12.cpp" />
+    <ClCompile Include="DX12\VertexBufferDX12.cpp" />
     <ClCompile Include="DX12\Window.cpp" />
-    <ClCompile Include="MaterialDX12.cpp" />
-    <ClCompile Include="MeshDX12.cpp" />
     <ClCompile Include="OpenGL\ConstantBufferGL.cpp" />
     <ClCompile Include="OpenGL\MaterialGL.cpp" />
     <ClCompile Include="OpenGL\MeshGL.cpp" />
@@ -165,13 +167,8 @@
     <ClCompile Include="OpenGL\Texture2DGL.cpp" />
     <ClCompile Include="OpenGL\TransformGL.cpp" />
     <ClCompile Include="OpenGL\VertexBufferGL.cpp" />
-    <ClCompile Include="RenderStateDX12.cpp" />
-    <ClCompile Include="ResourceBindingDX12.cpp" />
     <ClCompile Include="Sampler2D.cpp" />
-    <ClCompile Include="Sampler2DDX12.cpp" />
     <ClCompile Include="Scene.cpp" />
-    <ClCompile Include="Texture2DDX12.cpp" />
-    <ClCompile Include="TransformDX12.cpp" />
     <ClCompile Include="VertexBuffer.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="main.cpp" />
@@ -182,7 +179,6 @@
     <ClCompile Include="Technique.cpp" />
     <ClCompile Include="Texture2D.cpp" />
     <ClCompile Include="Transform.cpp" />
-    <ClCompile Include="VertexBufferDX12.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\stb_image.h" />
@@ -227,6 +223,12 @@
   <ItemGroup>
     <None Include="..\assets\GL45\FragmentShader.glsl" />
     <None Include="..\assets\GL45\VertexShader.glsl" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="FragmentShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">5.1</ShaderModel>
+    </FxCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

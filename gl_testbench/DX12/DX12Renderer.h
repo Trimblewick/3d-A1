@@ -36,11 +36,15 @@ private:
 	D3D12_VIEWPORT						m_viewport;
 	D3D12_RECT							m_rectScissor;
 
-	//MaterialDX12*  					m_pMaterial;
+	std::vector<ID3D12PipelineState*>	m_pPSOs;
+
+	ID3D12DescriptorHeap*				m_pDHTexture;
+
+	std::vector<D3D12_ROOT_PARAMETER>	m_rootParameters;
+
 	std::vector<Mesh*> drawList;
-
-
-	bool globalWireframeMode = false;
+	std::unordered_map<Technique*, std::vector<Mesh*>> drawList2;
+	int iPerMat = 1;
 
 public:
 	DX12Renderer();

@@ -1,5 +1,6 @@
 #include "DX12Renderer.h"
 #include "MaterialDX12.h"
+#include "Sampler2DDX12.h"
 #include "MeshDX12.h"
 #include "../Technique.h"
 #include "ResourceBindingDX12.h"
@@ -15,16 +16,6 @@ DX12Renderer::DX12Renderer()
 
 DX12Renderer::~DX12Renderer()
 {
-}
-
-ID3D12GraphicsCommandList * DX12Renderer::GetCMDL(int index)
-{
-	return m_ppCommandLists[index];
-}
-
-ID3D12RootSignature * DX12Renderer::GetRS()
-{
-	return m_pRS;
 }
 
 
@@ -54,8 +45,7 @@ LRESULT CALLBACK DX12Renderer::EventHandler(HWND hWnd, UINT message, WPARAM wPar
 
 Material * DX12Renderer::makeMaterial(const std::string & name)
 {
-	return new MaterialDX12(name, this, m_pD3DFactory);
-	//return nullptr;
+	return new MaterialDX12();
 }
 
 Mesh * DX12Renderer::makeMesh()
@@ -65,37 +55,34 @@ Mesh * DX12Renderer::makeMesh()
 
 VertexBuffer * DX12Renderer::makeVertexBuffer(size_t size, VertexBuffer::DATA_USAGE usage)
 {
-	return new VertexBufferDX12(size, usage, this,m_pD3DFactory);
+	return new VertexBufferDX12(size, usage, m_pD3DFactory);
 }
 
 Texture2D * DX12Renderer::makeTexture2D()
 {
-	return nullptr;
+	return new Texture2DDX12(m_pD3DFactory, m_pDHTexture);
 }
 
 Sampler2D * DX12Renderer::makeSampler2D()
 {
-	return nullptr;
+	return new Sampler2DDX12();
 }
 
 RenderState * DX12Renderer::makeRenderState()
 {
-	//RenderStateDX12* newRS = new RenderStateDX12();
-	//newRS->setGlobalWireFrame(&this->globalWireframeMode);
-	//newRS->setWireFrame(false);
-	return nullptr;// newRS;
+	return nullptr;
 }
 
 std::string DX12Renderer::getShaderPath()
 {
 	return std::string("..\\gl_testbench\\");
-	//return std::string();
 }
 
 std::string DX12Renderer::getShaderExtension()
 {
 	return std::string(".hlsl");
 }
+
 
 ConstantBuffer * DX12Renderer::makeConstantBuffer(std::string NAME, unsigned int location)
 {
@@ -122,7 +109,7 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 
 	DXGI_SAMPLE_DESC descSample = {};
 	descSample.Count = 1;
-	
+
 
 	DXGI_SWAP_CHAIN_DESC descSwapChain = {};
 	descSwapChain.BufferCount = g_iBackBufferCount;
@@ -139,6 +126,7 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 	int iDHIncrementSize = m_pD3DFactory->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_RTV);
 	D3D12_CPU_DESCRIPTOR_HANDLE handleDH = m_pDHrenderTargets->GetCPUDescriptorHandleForHeapStart();
 
+	//Set up for backbuffering
 	for (int i = 0; i < g_iBackBufferCount; ++i)
 	{
 		m_pFenceValues[i] = 0;
@@ -147,24 +135,116 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 
 		m_pD3DFactory->GetDevice()->CreateRenderTargetView(m_ppRenderTargets[i], nullptr, handleDH);
 		handleDH.ptr += iDHIncrementSize;
-		
+
 		m_ppCommandAllocators[i] = m_pD3DFactory->CreateCA();
 		m_ppCommandLists[i] = m_pD3DFactory->CreateCL(m_ppCommandAllocators[i]);
 		m_ppCommandLists[i]->Close();
 	}
 
-	D3D12_ROOT_SIGNATURE_DESC descRS = CD3DX12_ROOT_SIGNATURE_DESC(D3D12_DEFAULT);// {};
-	descRS.Flags = D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
-		D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
-	//descRS.NumParameters = 0;// rootParameters.size();
-	//descRS.pParameters = 0;// rootParameters.data();
-	//descRS.NumStaticSamplers = 1;
-	//descRS.pStaticSamplers = &CD3DX12_STATIC_SAMPLER_DESC(0);
 
+
+	//compile shaders
+	std::string s = getShaderPath() + "VertexShader" + getShaderExtension();
+	std::wstring stemp = std::wstring(s.begin(), s.end());
+	LPCWSTR vertexShaderPath = stemp.c_str();
+
+	ID3DBlob* pVSblob = m_pD3DFactory->CompileShader(vertexShaderPath, "main", "vs_5_1");
+
+
+	s = getShaderPath() + "FragmentShader" + getShaderExtension();
+	stemp = std::wstring(s.begin(), s.end());
+	LPCWSTR fragmentShaderPath = stemp.c_str();
+
+	ID3DBlob* pPSblob = m_pD3DFactory->CompileShader(fragmentShaderPath, "main", "ps_5_1");
+
+
+	//create root signature
+	D3D12_DESCRIPTOR_RANGE tableRange[1];
+	tableRange[0].NumDescriptors = 1;
+	tableRange[0].BaseShaderRegister = 0;
+	tableRange[0].RegisterSpace = 0;
+	tableRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
+	tableRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
+
+
+	D3D12_ROOT_DESCRIPTOR_TABLE rdt;
+	rdt.NumDescriptorRanges = 1;
+	rdt.pDescriptorRanges = tableRange;
+	
+
+	D3D12_ROOT_PARAMETER rp[2];
+	rp[0].DescriptorTable = rdt;
+	rp[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+	rp[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	
+
+	D3D12_STATIC_SAMPLER_DESC descStandardSampler[1];
+
+	descStandardSampler[0].Filter = D3D12_FILTER_MIN_MAG_MIP_POINT;
+	descStandardSampler[0].AddressU = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	descStandardSampler[0].AddressV = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	descStandardSampler[0].AddressW = D3D12_TEXTURE_ADDRESS_MODE_BORDER;
+	descStandardSampler[0].MipLODBias = 0;
+	descStandardSampler[0].MaxAnisotropy = 1;
+	descStandardSampler[0].ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
+	descStandardSampler[0].BorderColor = D3D12_STATIC_BORDER_COLOR_TRANSPARENT_BLACK;
+	descStandardSampler[0].MinLOD = 0.0f;
+	descStandardSampler[0].MaxLOD = D3D12_FLOAT32_MAX;
+	descStandardSampler[0].ShaderRegister = 0;
+	descStandardSampler[0].RegisterSpace = 0;
+	descStandardSampler[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+	
+
+	D3D12_ROOT_CONSTANTS colorConstant;
+	colorConstant.Num32BitValues = 3;
+	colorConstant.RegisterSpace = 0;
+	colorConstant.ShaderRegister = 0;
+
+	rp[1].Constants = colorConstant;
+	rp[1].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+	rp[1].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
+
+
+
+	D3D12_ROOT_SIGNATURE_DESC descRS = {};// CD3DX12_ROOT_SIGNATURE_DESC(D3D12_DEFAULT);// {};
+	//descRS.Init(1, rp, 1, descStandardSampler);
+	descRS.Flags =  
+		D3D12_ROOT_SIGNATURE_FLAGS::D3D12_ROOT_SIGNATURE_FLAG_DENY_DOMAIN_SHADER_ROOT_ACCESS |
+		D3D12_ROOT_SIGNATURE_FLAGS::D3D12_ROOT_SIGNATURE_FLAG_DENY_HULL_SHADER_ROOT_ACCESS |
+		D3D12_ROOT_SIGNATURE_FLAGS::D3D12_ROOT_SIGNATURE_FLAG_DENY_GEOMETRY_SHADER_ROOT_ACCESS;
+	descRS.NumParameters = _countof(rp);// rootParameters.size();
+	descRS.pParameters = rp;// rootParameters.data();
+	descRS.NumStaticSamplers = 1;
+	descRS.pStaticSamplers = descStandardSampler;
+	
 
 	m_pRS = m_pD3DFactory->CreateRS(&descRS);
+
+	DXGI_SWAP_CHAIN_DESC tempSwapChainDesc;
+	m_pSwapChain->GetDesc(&tempSwapChainDesc);
+
+
+	D3D12_GRAPHICS_PIPELINE_STATE_DESC descPSO = {};
+	descPSO.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
+	//descPSO.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	descPSO.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+	descPSO.NumRenderTargets = 1;
+	descPSO.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+	descPSO.VS = { pVSblob->GetBufferPointer(), pVSblob->GetBufferSize() };
+	descPSO.PS = { pPSblob->GetBufferPointer(), pPSblob->GetBufferSize() };
+	descPSO.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
+	descPSO.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+	descPSO.SampleDesc = descSample;
+	descPSO.SampleMask = 0xffffffff;
+	descPSO.pRootSignature = m_pRS;
+
 	
+	m_pPSOs.push_back(m_pD3DFactory->CreatePSO(&descPSO));
+
+	descPSO.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
+
+	m_pPSOs.push_back(m_pD3DFactory->CreatePSO(&descPSO));
+
 
 	m_viewport.TopLeftX = 0;
 	m_viewport.TopLeftY = 0;
@@ -177,6 +257,8 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 	m_rectScissor.top = (long)0;
 	m_rectScissor.right = (long)width;
 	m_rectScissor.bottom = (long)height;
+
+	m_pDHTexture = m_pD3DFactory->CreateDH(1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, true);
 
 	return 0;
 }
@@ -235,6 +317,12 @@ int DX12Renderer::shutdown()
 		SAFE_RELEASE(m_ppRenderTargets[i]);
 		
 	}
+
+	for (ID3D12PipelineState* pPSO : m_pPSOs)
+	{
+		SAFE_RELEASE(pPSO);
+	}
+
 	SAFE_RELEASE(m_pRS);
 	SAFE_RELEASE(m_pSwapChain);
 	SAFE_RELEASE(m_pCommandQueue);
@@ -280,31 +368,45 @@ void DX12Renderer::clearBuffer(unsigned int flag = -1)
 
 void DX12Renderer::setRenderState(RenderState * ps)
 {
-
+	return;
 }
 
+//int perMat = 1 ... ---- Added to .h file 
 void DX12Renderer::submit(Mesh * mesh)
 {
-	this->drawList.push_back(mesh);
+	if (this->iPerMat) {
+		drawList2[mesh->technique].push_back(mesh);
+	}
+	else
+		drawList.push_back(mesh);
 }
 
 void DX12Renderer::frame()
 {
 	int iFrameIndex = m_pSwapChain->GetCurrentBackBufferIndex();
 	
-	//ID3D12DescriptorHeap* ppDescriptorHeaps[] = { };
-	//m_ppCommandLists[iFrameIndex]->SetDescriptorHeaps(0, nullptr);
-	//int iIncrementSizeRTV = m_pD3DFactory->GetDevice()->GetDescriptorHandleIncrementSize(D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV);
-	//D3D12_CPU_DESCRIPTOR_HANDLE handleDH = m_pDHrenderTargets->GetCPUDescriptorHandleForHeapStart();
-	//handleDH.ptr += iIncrementSizeRTV * iFrameIndex;
+	//Set texture descriptor heap
+	ID3D12DescriptorHeap* ppDescriptorHeaps[] = { m_pDHTexture };
+	m_ppCommandLists[iFrameIndex]->SetDescriptorHeaps(1, ppDescriptorHeaps);
 
 	m_ppCommandLists[iFrameIndex]->RSSetViewports(1, &m_viewport);
 	m_ppCommandLists[iFrameIndex]->RSSetScissorRects(1, &m_rectScissor);
-
-	MaterialDX12* mat = (MaterialDX12*)drawList[0]->technique->getMaterial();
-	m_ppCommandLists[iFrameIndex]->SetPipelineState(mat->GetPSO());
 	m_ppCommandLists[iFrameIndex]->SetGraphicsRootSignature(m_pRS);
-	m_ppCommandLists[iFrameIndex]->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);
+	
+	//first pipeline.
+	m_ppCommandLists[iFrameIndex]->SetPipelineState(m_pPSOs[0]);
+	//texture table
+	m_ppCommandLists[iFrameIndex]->SetGraphicsRootDescriptorTable(0, m_pDHTexture->GetGPUDescriptorHandleForHeapStart());
+	
+	float color[3];
+	color[0] = 0.0f;
+	color[1] = 0.0f;
+	color[2] = 1.0f;
+	//color constants
+	m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(1, 3, color, 0);
+
+	m_ppCommandLists[iFrameIndex]->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	m_ppCommandLists[iFrameIndex]->DrawInstanced(3, 1, 0, 0);
 }
+

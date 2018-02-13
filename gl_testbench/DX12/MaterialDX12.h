@@ -56,7 +56,7 @@ private:
 	//int program;
 	int m_pShaderObjects[4] = { 0 };
 	std::string m_pShaderNames[4];
-	D3DFactory* m_pFactory;
-	DX12Renderer* m_pRenderer;
+	D3DFactory* _pFactory;
+	DX12Renderer* _pRenderer;
 	ID3D12PipelineState* m_pPSO;
 };

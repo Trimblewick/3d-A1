@@ -6,6 +6,14 @@
 
 D3DFactory::D3DFactory()
 {
+	{
+		ID3D12Debug* debugController;
+		if (SUCCEEDED(D3D12GetDebugInterface(IID_PPV_ARGS(&debugController))))
+		{
+			debugController->EnableDebugLayer();
+		}
+
+	}
 	HRESULT hr;
 	DxAssert(CreateDXGIFactory1(IID_PPV_ARGS(&m_pDXGIFactory)), S_OK);
 
@@ -46,7 +54,7 @@ D3DFactory::D3DFactory()
 	assert(iAdapterFound > 0);
 
 	DxAssert(D3D12CreateDevice(pAdapter, D3D_FEATURE_LEVEL_11_0, IID_PPV_ARGS(&m_pDevice)), S_OK);
-	
+	m_pCQUpload = this->CreateCQ();
 }
 
 D3DFactory::~D3DFactory()
@@ -158,6 +166,56 @@ ID3DBlob * D3DFactory::CompileShader(LPCWSTR filePath, LPCSTR entrypoint, LPCSTR
 		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION, 0, &shaderBlob, nullptr), S_OK);
 
 	return shaderBlob;
+}
+
+ID3D12Resource * D3DFactory::CreateCommittedResource(D3D12_RESOURCE_DESC* descResource, D3D12_SUBRESOURCE_DATA* initData)// , ID3D12GraphicsCommandList* pCL)
+{
+	ID3D12CommandAllocator* pCA = this->CreateCA();
+	ID3D12GraphicsCommandList* pCL = this->CreateCL(pCA);
+	ID3D12Fence* pFence = this->CreateFence();
+	HANDLE eventHandle = CreateEvent(0, NULL, NULL, 0);
+	ID3D12Resource* pResource;
+	ID3D12Resource* pUploadHeap;
+	unsigned long long iFootPrint;
+	m_pDevice->GetCopyableFootprints(descResource, 0, 1, 0, nullptr, nullptr, nullptr, &iFootPrint);
+
+	DxAssert(m_pDevice->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
+		descResource,
+		D3D12_RESOURCE_STATE_COPY_DEST,
+		nullptr,
+		IID_PPV_ARGS(&pResource)), S_OK);
+
+	DxAssert(m_pDevice->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_UPLOAD),
+		D3D12_HEAP_FLAGS::D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Buffer(iFootPrint),
+		D3D12_RESOURCE_STATE_GENERIC_READ,
+		nullptr,
+		IID_PPV_ARGS(&pUploadHeap)), S_OK);
+
+	UpdateSubresources(pCL, pResource, pUploadHeap, 0, 0, 1, initData);
+	pCL->ResourceBarrier(1, &CD3DX12_RESOURCE_BARRIER::Transition(pResource, D3D12_RESOURCE_STATE_COPY_DEST, D3D12_RESOURCE_STATE_PIXEL_SHADER_RESOURCE));
+
+	pCL->Close();
+
+	ID3D12CommandList* ppCLs[] = { pCL };
+
+	m_pCQUpload->ExecuteCommandLists(1, ppCLs);
+	m_pCQUpload->Signal(pFence, 1);
+
+	if (pFence->GetCompletedValue() < 1)
+	{
+		pFence->SetEventOnCompletion(1, eventHandle);
+		WaitForSingleObject(eventHandle, INFINITE);
+	}
+	pCA->Release();
+	pCL->Release();
+	pFence->Release();
+	pUploadHeap->Release();
+
+	return pResource;
 }
 
 

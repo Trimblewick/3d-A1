@@ -24,9 +24,10 @@ public:
 	IDXGISwapChain3*						CreateSwapChain(DXGI_SWAP_CHAIN_DESC pDesc, ID3D12CommandQueue* pCQ);
 	ID3D12DescriptorHeap*					CreateDH(int numDescriptors, D3D12_DESCRIPTOR_HEAP_TYPE type, bool bShaderVisible);
 	ID3DBlob*								CompileShader(LPCWSTR filePath, LPCSTR entrypoint, LPCSTR shadermodel);
-	
+	ID3D12Resource*							CreateCommittedResource(D3D12_RESOURCE_DESC* descResource, D3D12_SUBRESOURCE_DATA* initData);// , ID3D12GraphicsCommandList* pCL);
 
 private:
 	IDXGIFactory4*							m_pDXGIFactory;
 	ID3D12Device*							m_pDevice;
+	ID3D12CommandQueue*						m_pCQUpload;
 };
