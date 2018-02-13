@@ -1,11 +1,12 @@
 StructuredBuffer <float4> pos : register(t1);
 StructuredBuffer <float4> nor : register(t2);
 StructuredBuffer <float2> uv : register(t3);
-/*
-cbuffer tBuffer
+
+
+cbuffer tBuffer : register(b4)
 {
 	float4 translation;
-}*/
+};
 
 struct VS_OUT
 {
@@ -17,7 +18,7 @@ struct VS_OUT
 VS_OUT main(uint id : SV_VertexID) //float4 pos : POSITION ) : SV_POSITION
 {
 	VS_OUT output;
-	output.pos = pos[id];// +translation;
+	output.pos = pos[id] + translation;
 	output.nor = nor[id];
 	output.uv = uv[id];
 

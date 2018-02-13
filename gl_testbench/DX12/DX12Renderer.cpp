@@ -166,13 +166,12 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 	tableRange[0].OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
 	tableRange[0].RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
 
-
 	D3D12_ROOT_DESCRIPTOR_TABLE rdt;
 	rdt.NumDescriptorRanges = 1;
 	rdt.pDescriptorRanges = tableRange;
 	
 
-	D3D12_ROOT_PARAMETER rp[5];
+	D3D12_ROOT_PARAMETER rp[6];
 	rp[0].DescriptorTable = rdt;
 	rp[0].ParameterType = D3D12_ROOT_PARAMETER_TYPE::D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
 	rp[0].ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
@@ -222,6 +221,16 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 	rp[4].Descriptor = rd;
 	rp[4].ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 	rp[4].ParameterType = D3D12_ROOT_PARAMETER_TYPE_SRV;
+
+
+	D3D12_ROOT_CONSTANTS translationConstant;
+	translationConstant.Num32BitValues = 4;
+	translationConstant.RegisterSpace = 0;
+	translationConstant.ShaderRegister = 4;
+
+	rp[5].Constants = translationConstant;
+	rp[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+	rp[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
 
 
 	D3D12_ROOT_SIGNATURE_DESC descRS = {};// CD3DX12_ROOT_SIGNATURE_DESC(D3D12_DEFAULT);// {};
@@ -423,6 +432,13 @@ void DX12Renderer::frame()
 	color[3] = 0.0f;
 	//color constants
 	m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(1, 4, color, 0);
+	float translation[4];
+	translation[0] = 1.f;
+	translation[1] = 1.f;
+	translation[2] = 0.f;
+	translation[3] = 1.f;
+
+	m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(5, 4, translation, 0);
 
 	int testttt = drawList2.size();
 	
