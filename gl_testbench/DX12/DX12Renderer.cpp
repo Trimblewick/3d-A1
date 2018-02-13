@@ -196,7 +196,7 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 	
 
 	D3D12_ROOT_CONSTANTS colorConstant;
-	colorConstant.Num32BitValues = 3;
+	colorConstant.Num32BitValues = 4;
 	colorConstant.RegisterSpace = 0;
 	colorConstant.ShaderRegister = 0;
 
@@ -416,12 +416,13 @@ void DX12Renderer::frame()
 	//texture table
 	m_ppCommandLists[iFrameIndex]->SetGraphicsRootDescriptorTable(0, m_pDHTexture->GetGPUDescriptorHandleForHeapStart());
 	
-	float color[3];
+	float color[4];
 	color[0] = 0.0f;
 	color[1] = 0.0f;
 	color[2] = 1.0f;
+	color[3] = 1.0f;
 	//color constants
-	m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(1, 3, color, 0);
+	m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(1, 4, color, 0);
 
 	m_ppCommandLists[iFrameIndex]->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
