@@ -1,13 +1,26 @@
+StructuredBuffer <float4> pos : register(t1)
+StructuredBuffer <float4> nor : register(t2)
+StructuredBuffer <float2> uv : register(t3)
+
+cbuffer tBuffer
+{
+	float4 translation;
+};
 
 struct VS_OUT
 {
 	float4 pos : SV_POSITION;
+	float4 nor : NORMAL;
 	float2 uv : TEXCOORD;
 };
 
 VS_OUT main(uint id : SV_VertexID) //float4 pos : POSITION ) : SV_POSITION
 {
 	VS_OUT output;
+	//output.pos = pos[id] + translation;
+	//output.nor = nor[id];
+	//output.uv = uv[id];
+
 	output.pos = float4(0, 0, 0, 1);
 	output.uv = float2(0,0);
 
@@ -27,5 +40,5 @@ VS_OUT main(uint id : SV_VertexID) //float4 pos : POSITION ) : SV_POSITION
 		output.uv = float2(-0.51, 1.1f);
 	}
 
-	return output;//float4((id == 2 || id == 3) * 2 - 1, (id == 1 || id == 3) * 2 - 1, 0, 1);
+	return output;
 }

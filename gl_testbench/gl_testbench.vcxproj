@@ -149,6 +149,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ConstantBuffer.cpp" />
+    <ClCompile Include="DX12\ConstantBufferDX12.cpp" />
     <ClCompile Include="DX12\D3DFactory.cpp" />
     <ClCompile Include="DX12\DX12Renderer.cpp" />
     <ClCompile Include="DX12\MaterialDX12.cpp" />
