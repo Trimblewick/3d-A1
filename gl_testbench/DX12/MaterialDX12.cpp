@@ -32,6 +32,7 @@
 
 MaterialDX12::MaterialDX12()
 {
+    m_pPSO = nullptr;
 }
 
 MaterialDX12::MaterialDX12(std::string _name, DX12Renderer* renderer, D3DFactory* factory)

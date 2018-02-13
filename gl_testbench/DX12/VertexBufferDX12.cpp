@@ -30,7 +30,7 @@ void VertexBufferDX12::setData(const void * data, size_t size, size_t offset)
 	range.Begin = offset;
 	range.End = (size + offset);
  
-	uint8_t* adress;
+	uint8_t* adress; //address*
 	m_pVBUpload->Map(0, &range, reinterpret_cast<void**>(&adress));
 	memcpy(adress, data, size);
 }

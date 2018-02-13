@@ -86,7 +86,7 @@ std::string DX12Renderer::getShaderExtension()
 
 ConstantBuffer * DX12Renderer::makeConstantBuffer(std::string NAME, unsigned int location)
 {
-	return new ConstantBufferDX12(NAME, location);
+	return new ConstantBufferDX12(m_pD3DFactory);
 }
 
 Technique * DX12Renderer::makeTechnique(Material* m, RenderState* r)
