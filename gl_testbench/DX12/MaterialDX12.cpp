@@ -75,11 +75,8 @@ int MaterialDX12::compileMaterial(std::string & errString)
 	m_pShaderObjects[0] = 1;
 	m_pShaderObjects[1] = 1;
 
-	//ID3D12RootSignature* RS = _pRenderer->GetRS();
-
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC descPSO = {};
 	descPSO.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	//descPSO.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	descPSO.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 	descPSO.NumRenderTargets = 1;
 	descPSO.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
@@ -88,9 +85,11 @@ int MaterialDX12::compileMaterial(std::string & errString)
 	descPSO.RasterizerState = CD3DX12_RASTERIZER_DESC(D3D12_DEFAULT);
 	descPSO.SampleDesc = descSample;
 	descPSO.SampleMask = 0xffffffff;
-	//descPSO.pRootSignature = RS;
 
 	m_pPSO = _pFactory->CreatePSO(&descPSO);
+
+	SAFE_RELEASE(pVSblob);
+	SAFE_RELEASE(pPSblob);
 
 	return 0;
 }
