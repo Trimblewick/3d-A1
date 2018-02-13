@@ -27,11 +27,11 @@ void VertexBufferDX12::setData(const void * data, size_t size, size_t offset)
 {
 	assert(size + offset <= totalSize);
 	D3D12_RANGE range;
-	range.Begin = offset/size;
-	range.End = (size + offset) / size;
+	range.Begin = offset;
+	range.End = (size + offset);
  
-	uint8_t** adress;
-	m_pVBUpload->Map(offset, &range, reinterpret_cast<void**>(adress));
+	uint8_t* adress;
+	m_pVBUpload->Map(0, &range, reinterpret_cast<void**>(&adress));
 	memcpy(adress, data, size);
 }
 
