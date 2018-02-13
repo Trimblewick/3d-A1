@@ -402,7 +402,7 @@ void DX12Renderer::frame()
 	color[0] = 0.0f;
 	color[1] = 0.0f;
 	color[2] = 1.0f;
-	color[3] = 0.0f;
+	color[3] = 1.0f;
 	//color constants
 	m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(1, 4, color, 0);
 
