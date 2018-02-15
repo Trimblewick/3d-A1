@@ -426,12 +426,8 @@ void DX12Renderer::frame()
 	m_ppCommandLists[iFrameIndex]->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	
 	float color[4];
-	color[0] = 0.0f;
-	color[1] = 0.0f;
-	color[2] = 1.0f;
-	color[3] = 0.0f;
 	//color constants
-	m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(1, 4, color, 0);
+	
 	float translation[4];
 	translation[0] = 1.f;
 	translation[1] = 1.f;
@@ -443,7 +439,11 @@ void DX12Renderer::frame()
 	int testttt = drawList2.size();
 	for (auto work : drawList2)
 	{
-
+		color[0] = work.first->getMaterial()->color.r;
+		color[1] = work.first->getMaterial()->color.g;
+		color[2] = work.first->getMaterial()->color.b;
+		color[3] = work.first->getMaterial()->color.a;
+		m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(1, 4, color, 0);
 		std::vector<Mesh*> m = work.second;
 		VertexBufferDX12* test = (VertexBufferDX12*)m[0]->geometryBuffers[0].buffer;
 		VertexBufferDX12* test1 = (VertexBufferDX12*)m[0]->geometryBuffers[1].buffer;
@@ -453,7 +453,7 @@ void DX12Renderer::frame()
 		test2->bind(m_ppCommandLists[iFrameIndex], 4);
 
 		int j = 0;
-		for (int i = j; i < m.size(); i += 4)
+		for (int i = j; i < m.size(); ++i)
 		{
 			ConstantBufferDX12* pCBuffer = (ConstantBufferDX12*)m[i]->txBuffer;
 			m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(5, 4, &pCBuffer->getTranslation(), 0);
@@ -461,48 +461,48 @@ void DX12Renderer::frame()
 		}
 		j++;
 		m_ppCommandLists[iFrameIndex]->SetPipelineState(m_pPSOs[0]);
-		color[0] = 0.0f;
-		color[1] = 1.0f;
-		color[2] = 0.0f;
-		color[3] = 1.0f;
+		//color[0] = 0.0f;
+		//color[1] = 1.0f;
+		//color[2] = 0.0f;
+		//color[3] = 1.0f;
 		//color constants
-		m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(1, 4, color, 0);
+		//m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(1, 4, color, 0);
 
-		for (int i = j; i < m.size(); i += 4)
-		{
-			ConstantBufferDX12* pCBuffer = (ConstantBufferDX12*)m[i]->txBuffer;
-			m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(5, 4, &pCBuffer->getTranslation(), 0);
-			m_ppCommandLists[iFrameIndex]->DrawInstanced(m[i]->geometryBuffers[0].numElements, 1, 0, 0);
-		}
-		j++;
+		//for (int i = j; i < m.size(); i += 4)
+		//{
+		//	ConstantBufferDX12* pCBuffer = (ConstantBufferDX12*)m[i]->txBuffer;
+		//	m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(5, 4, &pCBuffer->getTranslation(), 0);
+		//	m_ppCommandLists[iFrameIndex]->DrawInstanced(m[i]->geometryBuffers[0].numElements, 1, 0, 0);
+		//}
+		//j++;
 
-		color[0] = 1.0f;
-		color[1] = 1.0f;
-		color[2] = 1.0f;
-		color[3] = 0.0f;//<<----- This way we know it's a texture
+		//color[0] = 1.0f;
+		//color[1] = 1.0f;
+		//color[2] = 1.0f;
+		//color[3] = 0.0f;//<<----- This way we know it's a texture
 		//color constants
-		m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(1, 4, color, 0);
-		for (int i = j; i < m.size(); i += 4)
-		{
-			ConstantBufferDX12* pCBuffer = (ConstantBufferDX12*)m[i]->txBuffer;
-			m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(5, 4, &pCBuffer->getTranslation(), 0);
-			m_ppCommandLists[iFrameIndex]->DrawInstanced(m[i]->geometryBuffers[0].numElements, 1, 0, 0);
-		}
+		//m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(1, 4, color, 0);
+		//for (int i = j; i < m.size(); i += 4)
+		//{
+		//	ConstantBufferDX12* pCBuffer = (ConstantBufferDX12*)m[i]->txBuffer;
+		//	m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(5, 4, &pCBuffer->getTranslation(), 0);
+		//	m_ppCommandLists[iFrameIndex]->DrawInstanced(m[i]->geometryBuffers[0].numElements, 1, 0, 0);
+		//}
 
-		j++;
+		//j++;
 
-		color[0] = 1.0f;
-		color[1] = 0.0f;
-		color[2] = 0.0f;
-		color[3] = 1.0f;
+		//color[0] = 1.0f;
+		//color[1] = 0.0f;
+		//color[2] = 0.0f;
+		//color[3] = 1.0f;
 		//color constants
-		m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(1, 4, color, 0);
-		for (int i = j; i < m.size(); i += 4)
-		{
-			ConstantBufferDX12* pCBuffer = (ConstantBufferDX12*)m[i]->txBuffer;
-			m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(5, 4, &pCBuffer->getTranslation(), 0);
-			m_ppCommandLists[iFrameIndex]->DrawInstanced(m[i]->geometryBuffers[0].numElements, 1, 0, 0);
-		}
+		//m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(1, 4, color, 0);
+		//for (int i = j; i < m.size(); i += 4)
+		//{
+		//	ConstantBufferDX12* pCBuffer = (ConstantBufferDX12*)m[i]->txBuffer;
+		//	m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(5, 4, &pCBuffer->getTranslation(), 0);
+		//	m_ppCommandLists[iFrameIndex]->DrawInstanced(m[i]->geometryBuffers[0].numElements, 1, 0, 0);
+		//}
 	}
 	drawList2.clear();
 

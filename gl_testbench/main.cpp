@@ -340,7 +340,7 @@ int main(int argc, char *argv[])
 	renderer = Renderer::makeRenderer(Renderer::BACKEND::DX12);
 	renderer->initialize(800,600);
 	renderer->setWinTitle("DX12");
-	renderer->setClearColor(0.0, 0.1, 0.1, 1.0);
+	renderer->setClearColor(0.5, 0.5, 0.5, 1.0);
 	
 	initialiseTestbench();
 	//run();

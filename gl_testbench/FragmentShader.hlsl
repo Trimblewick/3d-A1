@@ -15,7 +15,7 @@ struct VS_OUT
 
 float4 main(VS_OUT input) : SV_TARGET
 {
-	if(color.w > 0.5)
+	if (color.x < 0.5 || color.y < 0.5 || color.z < 0.5)
 		return color;
 	else
 		return t1.Sample(s1, input.uv);

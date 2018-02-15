@@ -2,6 +2,7 @@
 #include <vector>
 #include <assert.h>
 #include <fstream>
+#include "ConstantBufferDX12.h"
 
 MaterialDX12::MaterialDX12()
 {
@@ -106,6 +107,7 @@ void MaterialDX12::addConstantBuffer(std::string name, unsigned int location)
 
 void MaterialDX12::updateConstantBuffer(const void * data, size_t size, unsigned int location)
 {
+	color = *(Color*)data;
 	return;
 }
 

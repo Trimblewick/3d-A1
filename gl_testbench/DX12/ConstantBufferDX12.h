@@ -17,6 +17,7 @@ public:
 	void setData(const void* data, size_t size, Material* m, unsigned int location);
 	void bind(Material* m);
 	float4 getTranslation();
+	void setDiffuse();
 
 private:
     D3DFactory* _pFactory;
@@ -25,6 +26,6 @@ private:
     int m_location;
     void* m_pLastMat;//maybe needed
 	float4 m_translations;
-	
+	float4 diffuse;
 
 };
