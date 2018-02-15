@@ -22,6 +22,8 @@ ConstantBufferDX12::~ConstantBufferDX12()
 
 void ConstantBufferDX12::setData(const void * data, size_t size, Material * m, unsigned int location)
 {
+	m_translations = *(float4*)data;
+
     D3D12_RANGE range;
     range.Begin = 0;
     range.End = 0; 
@@ -35,4 +37,9 @@ void ConstantBufferDX12::setData(const void * data, size_t size, Material * m, u
 void ConstantBufferDX12::bind(Material * m)
 {
 
+}
+
+float4 ConstantBufferDX12::getTranslation()
+{
+	return m_translations;
 }

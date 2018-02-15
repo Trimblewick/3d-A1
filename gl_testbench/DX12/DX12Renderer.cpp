@@ -441,7 +441,6 @@ void DX12Renderer::frame()
 	m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(5, 4, translation, 0);
 
 	int testttt = drawList2.size();
-	
 	for (auto work : drawList2)
 	{
 
@@ -452,10 +451,12 @@ void DX12Renderer::frame()
 		test->bind(m_ppCommandLists[iFrameIndex], 2);
 		test1->bind(m_ppCommandLists[iFrameIndex], 3);
 		test2->bind(m_ppCommandLists[iFrameIndex], 4);
-			
+
 		int j = 0;
 		for (int i = j; i < m.size(); i += 4)
 		{
+			ConstantBufferDX12* pCBuffer = (ConstantBufferDX12*)m[i]->txBuffer;
+			m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(5, 4, &pCBuffer->getTranslation(), 0);
 			m_ppCommandLists[iFrameIndex]->DrawInstanced(m[i]->geometryBuffers[0].numElements, 1, 0, 0);
 		}
 		j++;
@@ -466,8 +467,11 @@ void DX12Renderer::frame()
 		color[3] = 1.0f;
 		//color constants
 		m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(1, 4, color, 0);
+
 		for (int i = j; i < m.size(); i += 4)
 		{
+			ConstantBufferDX12* pCBuffer = (ConstantBufferDX12*)m[i]->txBuffer;
+			m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(5, 4, &pCBuffer->getTranslation(), 0);
 			m_ppCommandLists[iFrameIndex]->DrawInstanced(m[i]->geometryBuffers[0].numElements, 1, 0, 0);
 		}
 		j++;
@@ -480,6 +484,8 @@ void DX12Renderer::frame()
 		m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(1, 4, color, 0);
 		for (int i = j; i < m.size(); i += 4)
 		{
+			ConstantBufferDX12* pCBuffer = (ConstantBufferDX12*)m[i]->txBuffer;
+			m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(5, 4, &pCBuffer->getTranslation(), 0);
 			m_ppCommandLists[iFrameIndex]->DrawInstanced(m[i]->geometryBuffers[0].numElements, 1, 0, 0);
 		}
 
@@ -493,6 +499,8 @@ void DX12Renderer::frame()
 		m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(1, 4, color, 0);
 		for (int i = j; i < m.size(); i += 4)
 		{
+			ConstantBufferDX12* pCBuffer = (ConstantBufferDX12*)m[i]->txBuffer;
+			m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(5, 4, &pCBuffer->getTranslation(), 0);
 			m_ppCommandLists[iFrameIndex]->DrawInstanced(m[i]->geometryBuffers[0].numElements, 1, 0, 0);
 		}
 	}
