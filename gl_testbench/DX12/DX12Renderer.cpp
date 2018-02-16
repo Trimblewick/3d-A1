@@ -70,7 +70,7 @@ Sampler2D * DX12Renderer::makeSampler2D()
 
 RenderState * DX12Renderer::makeRenderState()
 {
-	return nullptr;
+	return new RenderStateDX12();
 }
 
 std::string DX12Renderer::getShaderPath()
@@ -224,7 +224,7 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 
 
 	D3D12_ROOT_CONSTANTS translationConstant;
-	translationConstant.Num32BitValues = 4;
+	translationConstant.Num32BitValues = 2;
 	translationConstant.RegisterSpace = 0;
 	translationConstant.ShaderRegister = 4;
 
@@ -427,16 +427,7 @@ void DX12Renderer::frame()
 	
 	float color[4];
 	//color constants
-	
-	float translation[4];
-	translation[0] = 1.f;
-	translation[1] = 1.f;
-	translation[2] = 0.f;
-	translation[3] = 1.f;
 
-	m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(5, 4, translation, 0);
-
-	int testttt = drawList2.size();
 	for (auto work : drawList2)
 	{
 		color[0] = work.first->getMaterial()->color.r;
@@ -445,6 +436,7 @@ void DX12Renderer::frame()
 		color[3] = work.first->getMaterial()->color.a;
 		m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(1, 4, color, 0);
 		std::vector<Mesh*> m = work.second;
+
 		VertexBufferDX12* test = (VertexBufferDX12*)m[0]->geometryBuffers[0].buffer;
 		VertexBufferDX12* test1 = (VertexBufferDX12*)m[0]->geometryBuffers[1].buffer;
 		VertexBufferDX12* test2 = (VertexBufferDX12*)m[0]->geometryBuffers[2].buffer;
@@ -456,53 +448,17 @@ void DX12Renderer::frame()
 		for (int i = j; i < m.size(); ++i)
 		{
 			ConstantBufferDX12* pCBuffer = (ConstantBufferDX12*)m[i]->txBuffer;
-			m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(5, 4, &pCBuffer->getTranslation(), 0);
+			float4 translation = pCBuffer->getTranslation();
+			m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(5, 2, &translation, 0);
+			/*m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstant(5, translation.x, 0);
+			m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstant(5, translation.y, 4);
+			m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstant(5, translation.z, 8);
+			m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstant(5, translation.w, 12);*/
+
 			m_ppCommandLists[iFrameIndex]->DrawInstanced(m[i]->geometryBuffers[0].numElements, 1, 0, 0);
 		}
 		j++;
 		m_ppCommandLists[iFrameIndex]->SetPipelineState(m_pPSOs[0]);
-		//color[0] = 0.0f;
-		//color[1] = 1.0f;
-		//color[2] = 0.0f;
-		//color[3] = 1.0f;
-		//color constants
-		//m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(1, 4, color, 0);
-
-		//for (int i = j; i < m.size(); i += 4)
-		//{
-		//	ConstantBufferDX12* pCBuffer = (ConstantBufferDX12*)m[i]->txBuffer;
-		//	m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(5, 4, &pCBuffer->getTranslation(), 0);
-		//	m_ppCommandLists[iFrameIndex]->DrawInstanced(m[i]->geometryBuffers[0].numElements, 1, 0, 0);
-		//}
-		//j++;
-
-		//color[0] = 1.0f;
-		//color[1] = 1.0f;
-		//color[2] = 1.0f;
-		//color[3] = 0.0f;//<<----- This way we know it's a texture
-		//color constants
-		//m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(1, 4, color, 0);
-		//for (int i = j; i < m.size(); i += 4)
-		//{
-		//	ConstantBufferDX12* pCBuffer = (ConstantBufferDX12*)m[i]->txBuffer;
-		//	m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(5, 4, &pCBuffer->getTranslation(), 0);
-		//	m_ppCommandLists[iFrameIndex]->DrawInstanced(m[i]->geometryBuffers[0].numElements, 1, 0, 0);
-		//}
-
-		//j++;
-
-		//color[0] = 1.0f;
-		//color[1] = 0.0f;
-		//color[2] = 0.0f;
-		//color[3] = 1.0f;
-		//color constants
-		//m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(1, 4, color, 0);
-		//for (int i = j; i < m.size(); i += 4)
-		//{
-		//	ConstantBufferDX12* pCBuffer = (ConstantBufferDX12*)m[i]->txBuffer;
-		//	m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(5, 4, &pCBuffer->getTranslation(), 0);
-		//	m_ppCommandLists[iFrameIndex]->DrawInstanced(m[i]->geometryBuffers[0].numElements, 1, 0, 0);
-		//}
 	}
 	drawList2.clear();
 

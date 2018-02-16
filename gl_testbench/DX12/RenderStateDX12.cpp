@@ -13,17 +13,17 @@ RenderStateDX12::~RenderStateDX12()
 
 void RenderStateDX12::setWireFrame(bool wireframe)
 {
-	_wireFrame = wireframe;
+	_wireframe = wireframe;
 }
 
 void RenderStateDX12::set()
 {
-	if (*this->globalWireFrame == _wireFrame)
+	if (*this->globalWireFrame == _wireframe)
 		return;
 	else
-		*this->globalWireFrame = _wireFrame;
+		*this->globalWireFrame = _wireframe;
 
-	if (_wireFrame)
+	if (_wireframe)
 		int placeholder1 = 0;//change to wireframe
 	else
 		int placeholder2 = 0;//change to solid color

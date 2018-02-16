@@ -243,7 +243,7 @@ int initialiseTestbench()
 	
 	// one technique with wireframe
 	RenderState* renderState1 = renderer->makeRenderState();
-	//renderState1->setWireFrame(true);
+	renderState1->setWireFrame(true);
 
 	// basic technique
 	techniques.push_back(renderer->makeTechnique(materials[0], renderState1));

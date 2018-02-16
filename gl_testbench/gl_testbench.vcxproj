@@ -154,6 +154,7 @@
     <ClCompile Include="DX12\DX12Renderer.cpp" />
     <ClCompile Include="DX12\MaterialDX12.cpp" />
     <ClCompile Include="DX12\MeshDX12.cpp" />
+    <ClCompile Include="DX12\RenderStateDX12.cpp" />
     <ClCompile Include="DX12\Sampler2DDX12.cpp" />
     <ClCompile Include="DX12\Texture2DDX12.cpp" />
     <ClCompile Include="DX12\VertexBufferDX12.cpp" />
