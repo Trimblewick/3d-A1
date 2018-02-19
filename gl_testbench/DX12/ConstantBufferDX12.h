@@ -11,7 +11,7 @@ typedef union {
 class ConstantBufferDX12 : public ConstantBuffer
 {
 public:
-	ConstantBufferDX12(D3DFactory* pFactory);
+	ConstantBufferDX12();
 	~ConstantBufferDX12();
 
 	void setData(const void* data, size_t size, Material* m, unsigned int location);
@@ -20,8 +20,6 @@ public:
 	void setDiffuse();
 
 private:
-    D3DFactory* _pFactory;
-    ID3D12Resource* m_pVBUpload;
     std::string m_name;
     int m_location;
     void* m_pLastMat;//maybe needed

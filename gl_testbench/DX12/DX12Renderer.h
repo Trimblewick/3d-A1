@@ -39,6 +39,10 @@ private:
 	std::vector<ID3D12PipelineState*>	m_pPSOs;
 
 	ID3D12DescriptorHeap*				m_pDHTexture;
+	ID3D12DescriptorHeap*				m_pDHDepthStencil;
+	ID3D12Resource*						m_pDepthStencil;
+	D3D12_CPU_DESCRIPTOR_HANDLE			m_handleDepthStencil;
+
 
 	std::vector<D3D12_ROOT_PARAMETER>	m_rootParameters;
 

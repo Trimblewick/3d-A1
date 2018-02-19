@@ -86,7 +86,7 @@ std::string DX12Renderer::getShaderExtension()
 
 ConstantBuffer * DX12Renderer::makeConstantBuffer(std::string NAME, unsigned int location)
 {
-	return new ConstantBufferDX12(m_pD3DFactory);
+	return new ConstantBufferDX12();
 }
 
 Technique * DX12Renderer::makeTechnique(Material* m, RenderState* r)
@@ -224,13 +224,14 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 
 
 	D3D12_ROOT_CONSTANTS translationConstant;
-	translationConstant.Num32BitValues = 2;
+	translationConstant.Num32BitValues = 4;
 	translationConstant.RegisterSpace = 0;
 	translationConstant.ShaderRegister = 4;
 
 	rp[5].Constants = translationConstant;
 	rp[5].ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
 	rp[5].ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
+	
 
 
 	D3D12_ROOT_SIGNATURE_DESC descRS = {};// CD3DX12_ROOT_SIGNATURE_DESC(D3D12_DEFAULT);// {};
@@ -253,7 +254,7 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 
 	D3D12_GRAPHICS_PIPELINE_STATE_DESC descPSO = {};
 	descPSO.BlendState = CD3DX12_BLEND_DESC(D3D12_DEFAULT);
-	//descPSO.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
+	descPSO.DepthStencilState = CD3DX12_DEPTH_STENCIL_DESC(D3D12_DEFAULT);
 	descPSO.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 	descPSO.NumRenderTargets = 1;
 	descPSO.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
@@ -288,6 +289,31 @@ int DX12Renderer::initialize(unsigned int width, unsigned int height)
 	m_rectScissor.bottom = (long)height;
 
 	m_pDHTexture = m_pD3DFactory->CreateDH(1, D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, true);
+	m_pDHDepthStencil = m_pD3DFactory->CreateDH(1, D3D12_DESCRIPTOR_HEAP_TYPE_DSV, false);
+
+
+	D3D12_DEPTH_STENCIL_VIEW_DESC depthStencilDesc = {};
+	depthStencilDesc.Format = DXGI_FORMAT_D32_FLOAT;
+	depthStencilDesc.ViewDimension = D3D12_DSV_DIMENSION_TEXTURE2D;
+	depthStencilDesc.Flags = D3D12_DSV_FLAG_NONE;
+
+	D3D12_CLEAR_VALUE depthOptimizedClearValue = {};
+	depthOptimizedClearValue.Format = DXGI_FORMAT_D32_FLOAT;
+	depthOptimizedClearValue.DepthStencil.Depth = 1.0f;
+	depthOptimizedClearValue.DepthStencil.Stencil = 0;
+
+	m_pD3DFactory->GetDevice()->CreateCommittedResource(
+		&CD3DX12_HEAP_PROPERTIES(D3D12_HEAP_TYPE_DEFAULT),
+		D3D12_HEAP_FLAG_NONE,
+		&CD3DX12_RESOURCE_DESC::Tex2D(DXGI_FORMAT_D32_FLOAT, m_pWindow->GetWidth(), m_pWindow->GetHeight(), 1, 0, 1, 0, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL),
+		D3D12_RESOURCE_STATE_DEPTH_WRITE,
+		&depthOptimizedClearValue,
+		IID_PPV_ARGS(&m_pDepthStencil)
+	);
+
+	m_pD3DFactory->GetDevice()->CreateDepthStencilView(m_pDepthStencil, &depthStencilDesc, m_pDHDepthStencil->GetCPUDescriptorHandleForHeapStart());
+
+	m_handleDepthStencil = m_pDHDepthStencil->GetCPUDescriptorHandleForHeapStart();
 
 	return 0;
 }
@@ -351,6 +377,12 @@ int DX12Renderer::shutdown()
 	SAFE_RELEASE(m_pRS);
 	SAFE_RELEASE(m_pSwapChain);
 	SAFE_RELEASE(m_pCommandQueue);
+	SAFE_RELEASE(m_pDepthStencil);
+	SAFE_RELEASE(m_pDHDepthStencil);
+
+	m_rootParameters.clear();
+	drawList2.clear();
+
 
 	if (m_pD3DFactory)
 	{
@@ -388,7 +420,8 @@ void DX12Renderer::clearBuffer(unsigned int flag = -1)
 
 	
 	m_ppCommandLists[iFrameIndex]->ClearRenderTargetView(handleDH, m_pClearColor, NULL, nullptr);
-	m_ppCommandLists[iFrameIndex]->OMSetRenderTargets(1, &handleDH, NULL, nullptr);
+	m_ppCommandLists[iFrameIndex]->ClearDepthStencilView(m_handleDepthStencil, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr);
+	m_ppCommandLists[iFrameIndex]->OMSetRenderTargets(1, &handleDH, NULL, &m_handleDepthStencil);
 }
 
 void DX12Renderer::setRenderState(RenderState * ps)
@@ -418,8 +451,6 @@ void DX12Renderer::frame()
 	m_ppCommandLists[iFrameIndex]->RSSetScissorRects(1, &m_rectScissor);
 	m_ppCommandLists[iFrameIndex]->SetGraphicsRootSignature(m_pRS);
 	
-	//first pipeline.
-	m_ppCommandLists[iFrameIndex]->SetPipelineState(m_pPSOs[1]);
 	//texture table
 	m_ppCommandLists[iFrameIndex]->SetGraphicsRootDescriptorTable(0, m_pDHTexture->GetGPUDescriptorHandleForHeapStart());
 
@@ -427,38 +458,59 @@ void DX12Renderer::frame()
 	
 	float color[4];
 	//color constants
+	float translationarr[4];
 
+	bool testbb = false;
 	for (auto work : drawList2)
 	{
 		color[0] = work.first->getMaterial()->color.r;
 		color[1] = work.first->getMaterial()->color.g;
 		color[2] = work.first->getMaterial()->color.b;
 		color[3] = work.first->getMaterial()->color.a;
+		//work.first->enable(this);
+
+
 		m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(1, 4, color, 0);
 		std::vector<Mesh*> m = work.second;
-
-		VertexBufferDX12* test = (VertexBufferDX12*)m[0]->geometryBuffers[0].buffer;
-		VertexBufferDX12* test1 = (VertexBufferDX12*)m[0]->geometryBuffers[1].buffer;
-		VertexBufferDX12* test2 = (VertexBufferDX12*)m[0]->geometryBuffers[2].buffer;
-		test->bind(m_ppCommandLists[iFrameIndex], 2);
-		test1->bind(m_ppCommandLists[iFrameIndex], 3);
-		test2->bind(m_ppCommandLists[iFrameIndex], 4);
-
-		int j = 0;
-		for (int i = j; i < m.size(); ++i)
+		
+		if (color[0] + color[1] == 0 && color[2] + color[3] == 2)
+		{
+			m_ppCommandLists[iFrameIndex]->SetPipelineState(m_pPSOs[1]);
+		}
+		else
+		{
+			m_ppCommandLists[iFrameIndex]->SetPipelineState(m_pPSOs[0]);
+		}
+		if (!testbb)
+		{
+			
+			VertexBufferDX12* test = (VertexBufferDX12*)m[0]->geometryBuffers[0].buffer;
+			VertexBufferDX12* test1 = (VertexBufferDX12*)m[0]->geometryBuffers[1].buffer;
+			VertexBufferDX12* test2 = (VertexBufferDX12*)m[0]->geometryBuffers[2].buffer;
+			test->bind(m_ppCommandLists[iFrameIndex], 2);
+			test1->bind(m_ppCommandLists[iFrameIndex], 3);
+			test2->bind(m_ppCommandLists[iFrameIndex], 4);
+			testbb = true;
+		}
+		for (int i = 0; i < m.size(); ++i)
 		{
 			ConstantBufferDX12* pCBuffer = (ConstantBufferDX12*)m[i]->txBuffer;
 			float4 translation = pCBuffer->getTranslation();
-			m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(5, 2, &translation, 0);
-			/*m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstant(5, translation.x, 0);
-			m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstant(5, translation.y, 4);
-			m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstant(5, translation.z, 8);
-			m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstant(5, translation.w, 12);*/
+			translationarr[0] = translation.x;
+			translationarr[1] = translation.y;
+			translationarr[2] = translation.z + 1.0f;
+			translationarr[3] = translation.w;
+			float gg = -translation.z;
+			m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(5, 4, translationarr, 0);
+			/*m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstant(5, *reinterpret_cast<unsigned int*>((void*)&translation.x), 0);
+			m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstant(5, *reinterpret_cast<unsigned int*>((void*)&translation.y), 1);
+			m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstant(5, *reinterpret_cast<unsigned int*>((void*)&gg), 2);
+			m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstant(5, *reinterpret_cast<unsigned int*>((void*)&translation.w), 3);*/
+			//m_ppCommandLists[iFrameIndex]->SetGraphicsRoot32BitConstants(5, 4, translationarr, 0);
 
 			m_ppCommandLists[iFrameIndex]->DrawInstanced(m[i]->geometryBuffers[0].numElements, 1, 0, 0);
 		}
-		j++;
-		m_ppCommandLists[iFrameIndex]->SetPipelineState(m_pPSOs[0]);
+		
 	}
 	drawList2.clear();
 
